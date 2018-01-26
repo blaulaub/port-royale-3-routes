@@ -1,6 +1,7 @@
 package ch.patchcode.port_royale_3.routes;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.collection.IsIterableContainingInAnyOrder.containsInAnyOrder;
 import static org.hamcrest.number.IsCloseTo.closeTo;
 
 import java.io.IOException;
@@ -18,6 +19,11 @@ public class DistanceCsvDataTest {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("distances_simple.csv")) {
             reader = new DistanceCsvData(is);
         }
+    }
+
+    @Test
+    public void allPlacesArePresent() {
+        assertThat(reader.getPlaces(), containsInAnyOrder("1st Place", "2nd Place", "3rd Place"));
     }
 
     @Test

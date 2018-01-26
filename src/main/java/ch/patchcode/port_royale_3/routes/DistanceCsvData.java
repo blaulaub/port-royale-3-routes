@@ -4,9 +4,11 @@ import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class DistanceCsvData {
 
@@ -49,5 +51,9 @@ public class DistanceCsvData {
 
     public double getDistance(String fromPlace, String toPlace) {
         return distances.get(fromPlace).get(toPlace);
+    }
+
+    public Set<String> getPlaces() {
+        return Collections.unmodifiableSet(distances.keySet());
     }
 }
