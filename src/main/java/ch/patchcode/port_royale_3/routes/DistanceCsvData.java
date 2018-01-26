@@ -8,11 +8,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DistanceCsvReader {
+public class DistanceCsvData {
 
     private final Map<String, Map<String, Double>> distances;
 
-    public DistanceCsvReader(InputStream is) {
+    public DistanceCsvData(InputStream is) {
         this.distances = createFullDistanceMap(is);
     }
 

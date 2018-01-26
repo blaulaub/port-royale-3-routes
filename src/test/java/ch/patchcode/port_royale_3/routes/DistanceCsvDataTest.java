@@ -9,14 +9,14 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 
-public class DistanceCsvReaderTest {
+public class DistanceCsvDataTest {
 
-    private DistanceCsvReader reader;
+    private DistanceCsvData reader;
 
     @Before
     public void setup() throws IOException {
         try (InputStream is = getClass().getClassLoader().getResourceAsStream("distances_simple.csv")) {
-            reader = new DistanceCsvReader(is);
+            reader = new DistanceCsvData(is);
         }
     }
 
