@@ -27,39 +27,46 @@ public class GreedyMinimumDistanceSpanningTree {
         Vertex centralVertex = graph.getVertices().stream().map(NeighbourDistanceScore::new).sorted().findFirst().get()
                 .getVertex();
 
-        TreeSet<Edge> edges = new TreeSet<>(centralVertex.getEdges());
+        TreeBuilder c = new TreeBuilder(centralVertex);
 
-        TreeConstructor c = new TreeConstructor();
-        c.addVertex(centralVertex);
+        while (c.openEdges.size() > 0) {
+            Edge shortestUnconnectedEdge = c.openEdges.iterator().next();
+            List<Vertex> vertices = new LinkedList<>(shortestUnconnectedEdge.getVertices());
 
-        while (edges.size() > 0) {
-            Edge edge = edges.iterator().next();
-            List<Vertex> vertices = new LinkedList<>(edge.getVertices());
-
-            Map.Entry<Vertex, List<Vertex>> insertionPoint = c.tree.entrySet().stream()
-                    .filter(it -> vertices.contains(it.getKey())).findFirst().get();
-            vertices.remove(insertionPoint.getKey());
+            Vertex insertionPoint = c.tree.entrySet().stream()
+                    .filter(it -> vertices.contains(it.getKey())).findFirst().get().getKey();
+            vertices.remove(insertionPoint);
 
             Vertex newPoint = vertices.get(0);
-            insertionPoint.getValue().add(newPoint);
+            c.addSubVertex(insertionPoint, newPoint);
 
-            c.addVertex(newPoint);
-            System.out.println("Visit " + newPoint.getName() + " from " + insertionPoint.getKey().getName());
+            System.out.println("Visit " + newPoint.getName() + " from " + insertionPoint.getName());
 
-            edges.addAll(newPoint.getEdges());
-            edges = new TreeSet<>(edges.stream().filter(c.pred).collect(Collectors.toList()));
+            c.openEdges.addAll(newPoint.getEdges());
+            c.openEdges = new TreeSet<>(c.openEdges.stream().filter(c.pred).collect(Collectors.toList()));
         }
 
         this.tree = c.tree;
     }
 
     // TODO elaborate
-    private static class TreeConstructor {
-        public Map<Vertex, List<Vertex>> tree = new HashMap<>();
-        Predicate<Edge> pred = e -> edgeIsNotCoveredByTree(tree, e);
+    private static class TreeBuilder {
+        public Map<Vertex, List<Vertex>> tree;
+        public TreeSet<Edge> openEdges;
+        Predicate<Edge> pred;
 
-        public void addVertex(Vertex vertex) {
-            tree.put(vertex, new ArrayList<>());
+        public TreeBuilder(Vertex centralVertex) {
+            Map<Vertex, List<Vertex>> tree = new HashMap<>();
+            tree.put(centralVertex, new ArrayList<>());
+            TreeSet<Edge> openEdges = new TreeSet<>(centralVertex.getEdges());
+            this.tree = tree;
+            this.openEdges = openEdges;
+            this.pred = e -> edgeIsNotCoveredByTree(tree, e);
+        }
+
+        public void addSubVertex(Vertex insertionPoint, Vertex newPoint) {
+            tree.get(insertionPoint).add(newPoint);
+            tree.put(newPoint, new ArrayList<>());
         }
 
         private static boolean edgeIsNotCoveredByTree(Map<Vertex, List<Vertex>> tree, Edge edge) {
