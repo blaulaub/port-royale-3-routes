@@ -10,12 +10,12 @@ import ch.patchcode.graphs.weighted.WeightedEdge;
 import ch.patchcode.graphs.weighted.WeightedGraph;
 import ch.patchcode.graphs.weighted.WeightedVertex;
 
-public class Graph implements WeightedGraph {
+public class DistanceGraph implements WeightedGraph {
 
     private final Set<Vertex> vertices;
     private final Set<Edge> edges;
 
-    public Graph(DistanceData data) {
+    public DistanceGraph(DistanceData data) {
         ArrayList<VertexImpl> vertices = new ArrayList<>(
                 data.getPlaces().stream().map(VertexImpl::new).collect(Collectors.toList()));
         Set<EdgeImpl> edges = new HashSet<EdgeImpl>();
