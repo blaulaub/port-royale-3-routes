@@ -45,10 +45,17 @@ public class DistanceGraph implements WeightedGraph {
     }
 
     public abstract class Vertex implements WeightedVertex {
+
         public abstract String getName();
+
+        @Override
+        public abstract Set<Edge> getEdges();
     }
 
     public abstract class Edge implements WeightedEdge {
+
+        @Override
+        public abstract Set<Vertex> getVertices();
     }
 
     private class VertexImpl extends Vertex {
