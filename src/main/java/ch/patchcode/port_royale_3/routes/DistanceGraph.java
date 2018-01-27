@@ -3,6 +3,8 @@ package ch.patchcode.port_royale_3.routes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -44,15 +46,20 @@ public class DistanceGraph implements WeightedGraph {
         return edges;
     }
 
-    public abstract class Vertex implements WeightedVertex {
+    public abstract class Vertex implements WeightedVertex, Comparable<Vertex> {
 
         public abstract String getName();
 
         @Override
         public abstract Set<Edge> getEdges();
+
+        @Override
+        public int compareTo(Vertex o) {
+            return getName().compareTo(o.getName());
+        }
     }
 
-    public abstract class Edge implements WeightedEdge {
+    public abstract class Edge implements WeightedEdge, Comparable<Edge> {
 
         @Override
         public abstract Set<Vertex> getVertices();
@@ -113,7 +120,7 @@ public class DistanceGraph implements WeightedGraph {
             vertices.add(vertex2);
             this.vertices = Collections.unmodifiableSet(vertices);
             this.distance = distance;
-            this.hashCode = vertex1.hashCode() ^ vertex2.hashCode() ^ distance.hashCode();
+            this.hashCode = Objects.hash(vertex1, vertex2, distance);
         }
 
         @Override
@@ -124,6 +131,25 @@ public class DistanceGraph implements WeightedGraph {
         @Override
         public double getWeight() {
             return distance;
+        }
+
+        @Override
+        public int compareTo(Edge o) {
+            int distanceAscending = Double.compare(getWeight(), o.getWeight());
+            if (distanceAscending != 0) return distanceAscending;
+
+            List<Vertex> ownVertices = sortByNameAscending(this.getVertices());
+            List<Vertex> otherVertices = sortByNameAscending(o.getVertices());
+
+            int firstVertexNameAscending = ownVertices.get(0).getName().compareTo(otherVertices.get(0).getName());
+            if (firstVertexNameAscending != 0) return firstVertexNameAscending;
+
+            int secondVertexNameAscending = ownVertices.get(1).getName().compareTo(otherVertices.get(1).getName());
+            return secondVertexNameAscending;
+        }
+
+        private List<Vertex> sortByNameAscending(Set<Vertex> v1) {
+            return v1.stream().sorted((a,b) -> a.getName().compareTo(b.getName())).collect(Collectors.toList());
         }
 
         @Override
