@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DistanceCsvData {
+public class DistanceCsvData implements DistanceData {
 
     private final Map<String, Map<String, Double>> distances;
 
@@ -35,7 +35,7 @@ public class DistanceCsvData {
             distances.put(thisPlace, subdist);
 
             for (int i = 1; i < parts.length; ++i) {
-                String otherPlace = places.get(i-1);
+                String otherPlace = places.get(i - 1);
                 Double distance = Double.parseDouble(parts[i]);
                 updateBothDistances(distances, thisPlace, otherPlace, distance);
             }
@@ -43,16 +43,18 @@ public class DistanceCsvData {
         return distances;
     }
 
-    private static void updateBothDistances(Map<String, Map<String, Double>> distances, String thisPlace, String otherPlace,
-            Double distance) {
+    private static void updateBothDistances(Map<String, Map<String, Double>> distances, String thisPlace,
+            String otherPlace, Double distance) {
         distances.get(thisPlace).put(otherPlace, distance);
         distances.get(otherPlace).put(thisPlace, distance);
     }
 
-    public double getDistance(String fromPlace, String toPlace) {
+    @Override
+    public Double getDistance(String fromPlace, String toPlace) {
         return distances.get(fromPlace).get(toPlace);
     }
 
+    @Override
     public Set<String> getPlaces() {
         return Collections.unmodifiableSet(distances.keySet());
     }
