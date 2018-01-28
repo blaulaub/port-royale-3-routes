@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import ch.patchcode.graphs.trees.Tree;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
@@ -15,7 +16,7 @@ import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
  * unconnected node, until all nodes are connected by the tree.
  */
 // TODO may need some superclass (Tree? Spanning Tree?)
-public class GreedyMinimumDistanceSpanningTree {
+public class GreedyMinimumDistanceSpanningTree implements Tree<Vertex> {
 
     private Vertex root;
     private Map<Vertex, List<Vertex>> tree;
