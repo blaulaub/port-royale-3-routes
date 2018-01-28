@@ -1,5 +1,7 @@
 package ch.patchcode.port_royale_3.routes;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -15,6 +17,7 @@ import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 // TODO may need some superclass (Tree? Spanning Tree?)
 public class GreedyMinimumDistanceSpanningTree {
 
+    private Vertex root;
     private Map<Vertex, List<Vertex>> tree;
 
     public GreedyMinimumDistanceSpanningTree(DistanceGraph graph) {
@@ -28,6 +31,15 @@ public class GreedyMinimumDistanceSpanningTree {
             builder.connectEdge(shortestUnconnectedEdge);
         }
 
+        this.root = builder.getRoot();
         this.tree = builder.getTree();
+    }
+
+    public Vertex getRoot() {
+        return root;
+    }
+
+    public Collection<Vertex> getChildren(Vertex vertex) {
+        return Collections.unmodifiableCollection(tree.getOrDefault(vertex, Collections.emptyList()));
     }
 }

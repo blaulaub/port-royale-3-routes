@@ -13,6 +13,8 @@ import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
 public class SpanningTreeBuilder {
+
+    private final Vertex centralVertex;
     public Map<Vertex, List<Vertex>> tree;
     private TreeSet<Edge> openEdges;
     private Predicate<Edge> pred;
@@ -21,6 +23,7 @@ public class SpanningTreeBuilder {
         Map<Vertex, List<Vertex>> tree = new HashMap<>();
         tree.put(centralVertex, new ArrayList<>());
         TreeSet<Edge> openEdges = new TreeSet<>(centralVertex.getEdges());
+        this.centralVertex = centralVertex;
         this.tree = tree;
         this.openEdges = openEdges;
         this.pred = e -> edgeIsNotCoveredByTree(tree, e);
@@ -46,8 +49,6 @@ public class SpanningTreeBuilder {
 
         Vertex newPoint = vertices.get(0);
         addSubVertex(insertionPoint, newPoint);
-
-        System.out.println("Visit " + newPoint.getName() + " from " + insertionPoint.getName());
     }
 
     private void addSubVertex(Vertex insertionPoint, Vertex newPoint) {
@@ -59,5 +60,9 @@ public class SpanningTreeBuilder {
 
     private static boolean edgeIsNotCoveredByTree(Map<Vertex, List<Vertex>> tree, Edge edge) {
         return edge.getVertices().stream().filter(it -> !tree.keySet().contains(it)).count() > 0;
+    }
+
+    public Vertex getRoot() {
+        return centralVertex;
     }
 }
