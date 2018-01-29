@@ -27,7 +27,7 @@ public class GreedyMinimumDistanceSpanningTreeTest {
     }
 
     @Test
-    public void test() throws IOException {
+    public void outputTree() throws IOException {
         Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree(graph);
 
         File file = new File("GreedyMinimumDistanceSpanningTree.dot");
