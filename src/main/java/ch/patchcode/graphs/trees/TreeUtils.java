@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.Collection;
 import java.util.Deque;
+import java.util.function.BiConsumer;
 
 import ch.patchcode.graphs.basic.Vertex;
 
@@ -19,8 +20,17 @@ public class TreeUtils {
      * @param writer
      */
     public static <V extends Vertex<?>> void writeGraphvizDotFileContent(Tree<V> tree, PrintWriter writer) {
-
         writer.println("digraph G {");
+        visitAllEdges(tree, (a, b) -> writer.println(String.format("  \"%s\" -> \"%s\"", a.getName(), b.getName())));
+        writer.println("}");
+    }
+
+    /**
+     * Visit all edges, breadth-first.
+     * @param tree
+     * @param consumer
+     */
+    public static <V extends Vertex<?>> void visitAllEdges(Tree<V> tree, BiConsumer<V, V> consumer) {
 
         Deque<V> nodes = new ArrayDeque<>();
         nodes.push(tree.getRoot());
@@ -30,11 +40,9 @@ public class TreeUtils {
             Collection<V> children = tree.getChildren(current);
             nodes.addAll(children);
             for (V child : children) {
-                writer.println(String.format("  \"%s\" -> \"%s\"", current.getName(), child.getName()));
+                consumer.accept(current, child);
             }
         }
-
-        writer.println("}");
     }
 
 }
