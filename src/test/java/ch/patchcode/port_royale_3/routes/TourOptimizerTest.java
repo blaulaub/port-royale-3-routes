@@ -41,30 +41,6 @@ public class TourOptimizerTest {
 
         TourOptimizer links = new TourOptimizer(tree);
 
-        List<Vertex> redundantVertices = links.computeRedundantVertices();
-        while (redundantVertices.size() > 0) {
-            List<ShortCutMetric> metrics = links.computeAllShortcutMetrics(redundantVertices);
-
-            Collections.sort(metrics);
-
-            while (metrics.size() > 0) {
-
-                ShortCutMetric top = metrics.remove(0);
-
-                // Problem: may (will) split the graph
-                links.applyShortcut(top);
-
-                // so do a coloring check
-                if (links.isUnsplitted()) {
-                    System.out.println(top);
-                    break;                    
-                } else {
-                    links.unapplyShortcut(top);
-                }
-            }
-
-            redundantVertices = links.computeRedundantVertices();
-        }
 
         for (Vertex node : links.createTour()) {
             System.out.println("visit " + node.getName());
@@ -146,6 +122,30 @@ public class TourOptimizerTest {
         }
 
         public List<Vertex> createTour() {
+            List<Vertex> redundantVertices = computeRedundantVertices();
+            while (redundantVertices.size() > 0) {
+                List<ShortCutMetric> metrics = computeAllShortcutMetrics(redundantVertices);
+
+                Collections.sort(metrics);
+
+                while (metrics.size() > 0) {
+
+                    ShortCutMetric top = metrics.remove(0);
+
+                    // Problem: may (will) split the graph
+                    applyShortcut(top);
+
+                    // so do a coloring check
+                    if (isUnsplitted()) {
+                        break;
+                    } else {
+                        unapplyShortcut(top);
+                    }
+                }
+
+                redundantVertices = computeRedundantVertices();
+            }
+
             List<Vertex> visited = new ArrayList<>();
             Optional<Vertex> node = links.entrySet().stream().findFirst().map(it -> it.getKey());
             while (node.isPresent())  {
@@ -184,7 +184,6 @@ public class TourOptimizerTest {
 
         @Override
         public String toString() {
-            // TODO Auto-generated method stub
             return String.format("ShortCutMetric[%s-(%s)-%s saves %.1f]", neighbours.get(0).getName(), center.getName(), neighbours.get(1).getName(), benefit);
         }
     }
