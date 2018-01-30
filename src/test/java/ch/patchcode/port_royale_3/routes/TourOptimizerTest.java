@@ -39,80 +39,87 @@ public class TourOptimizerTest {
     public void outputTree() throws IOException {
         Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree(graph);
 
-        Map<Vertex, List<Vertex>> links = new HashMap<>();
-        TreeUtils.visitAllEdges(tree, (a, b) -> {
-            links.computeIfAbsent(a, $ -> new ArrayList<>()).addAll(Arrays.asList(b, b));
-            links.computeIfAbsent(b, $ -> new ArrayList<>()).addAll(Arrays.asList(a, a));
-        });
+        Map<Vertex, List<Vertex>> links = createInitialLinks(tree);
 
-        List<Vertex> redundantVertices = links.entrySet().stream().filter(it -> it.getValue().size() / 2 > 1)
-                .map(it -> it.getKey()).collect(Collectors.toList());
+        List<Vertex> redundantVertices = computeRedundantVertices(links);
         while (redundantVertices.size() > 0) {
-            List<ShortCutMetric> metrics = new ArrayList<>();
-            for (Vertex v : redundantVertices) {
-
-                Set<Vertex> neighbours = links.get(v).stream().distinct().collect(Collectors.toSet());
-
-                List<Edge> edges = v.getEdges().stream()
-                        .filter(it -> it.getVertices().stream().anyMatch(it2 -> neighbours.contains(it2)))
-                        .collect(Collectors.toList());
-
-                for (int i = 0; i < edges.size(); ++i) {
-                    Edge edge1 = edges.get(i);
-                    Vertex v1 = edge1.getVertices().stream().filter(it -> !it.equals(v)).findFirst().get();
-                    for (int j = i + 1; j < edges.size(); ++j) {
-                        Edge edge2 = edges.get(j);
-                        Vertex v2 = edge2.getVertices().stream().filter(it -> !it.equals(v)).findFirst().get();
-                        Edge edge3 = v1.getEdges().stream().filter(it -> it.getVertices().contains(v2)).findFirst().get();
-                        
-                        double benefit = Math.max(0, edge1.getWeight()+edge2.getWeight()-edge3.getWeight());
-                        metrics.add(new ShortCutMetric(v, Arrays.asList(v1, v2), benefit));
-                    }
-                }
-            }
+            List<ShortCutMetric> metrics = computeAllShortcutMetrics(links, redundantVertices);
 
             Collections.sort(metrics);
+
             while (metrics.size() > 0) {
+
                 ShortCutMetric top = metrics.remove(0);
 
-                Vertex a = top.neighbours.get(0);
-                Vertex b = top.neighbours.get(1);
-                Vertex c = top.center;
-
-                List<Vertex> x = links.get(a);
-                List<Vertex> y = links.get(b);
-                List<Vertex> z = links.get(c);
-
                 // Problem: may (will) split the graph
-                z.remove(a);
-                z.remove(b);
-                x.remove(c);
-                y.remove(c);
-                x.add(b);
-                y.add(a);                    
+                applyShortcut(links, top);
 
                 // so do a coloring check
-                if (colorByOneAndCount(links) == links.size()) {
+                if (isUnsplitted(links)) {
                     System.out.println(top);
                     break;                    
                 } else {
-                    z.add(a);
-                    z.add(b);
-                    x.add(c);
-                    y.add(c);
-                    x.remove(b);
-                    y.remove(a);                    
+                    unapplyShortcut(links, top);
                 }
             }
 
-            redundantVertices = links.entrySet().stream().filter(it -> it.getValue().size() / 2 > 1)
-                    .map(it -> it.getKey()).collect(Collectors.toList());
+            redundantVertices = computeRedundantVertices(links);
         }
 
         printChain(links);
     }
 
-    private int colorByOneAndCount(Map<Vertex, List<Vertex>> links) {
+    private Map<Vertex, List<Vertex>> createInitialLinks(Tree<Vertex> tree) {
+        Map<Vertex, List<Vertex>> links = new HashMap<>();
+        TreeUtils.visitAllEdges(tree, (a, b) -> {
+            links.computeIfAbsent(a, $ -> new ArrayList<>()).addAll(Arrays.asList(b, b));
+            links.computeIfAbsent(b, $ -> new ArrayList<>()).addAll(Arrays.asList(a, a));
+        });
+        return links;
+    }
+
+    private List<Vertex> computeRedundantVertices(Map<Vertex, List<Vertex>> links) {
+        return links.entrySet().stream().filter(it -> it.getValue().size() / 2 > 1)
+                .map(it -> it.getKey()).collect(Collectors.toList());
+    }
+
+    private List<ShortCutMetric> computeAllShortcutMetrics(Map<Vertex, List<Vertex>> links,
+            List<Vertex> redundantVertices) {
+        List<ShortCutMetric> metrics = new ArrayList<>();
+        for (Vertex v : redundantVertices) {
+
+            Set<Vertex> neighbours = links.get(v).stream().distinct().collect(Collectors.toSet());
+
+            List<Edge> edges = v.getEdges().stream()
+                    .filter(it -> it.getVertices().stream().anyMatch(it2 -> neighbours.contains(it2)))
+                    .collect(Collectors.toList());
+
+            for (int i = 0; i < edges.size(); ++i) {
+                Edge edge1 = edges.get(i);
+                Vertex v1 = edge1.getVertices().stream().filter(it -> !it.equals(v)).findFirst().get();
+                for (int j = i + 1; j < edges.size(); ++j) {
+                    Edge edge2 = edges.get(j);
+                    Vertex v2 = edge2.getVertices().stream().filter(it -> !it.equals(v)).findFirst().get();
+                    Edge edge3 = v1.getEdges().stream().filter(it -> it.getVertices().contains(v2)).findFirst().get();
+
+                    double benefit = Math.max(0, edge1.getWeight()+edge2.getWeight()-edge3.getWeight());
+                    metrics.add(new ShortCutMetric(v, Arrays.asList(v1, v2), benefit));
+                }
+            }
+        }
+        return metrics;
+    }
+
+    private void applyShortcut(Map<Vertex, List<Vertex>> links, ShortCutMetric top) {
+        links.get(top.center).remove(top.neighbours.get(0));
+        links.get(top.center).remove(top.neighbours.get(1));
+        links.get(top.neighbours.get(0)).remove(top.center);
+        links.get(top.neighbours.get(1)).remove(top.center);
+        links.get(top.neighbours.get(0)).add(top.neighbours.get(1));
+        links.get(top.neighbours.get(1)).add(top.neighbours.get(0));
+    }
+
+    private boolean isUnsplitted(Map<Vertex, List<Vertex>> links) {
         Set<Vertex> colored = new HashSet<Vertex>();
         Deque<Vertex> candidates = new ArrayDeque<>();
         candidates.add(links.keySet().iterator().next());
@@ -121,8 +128,16 @@ public class TourOptimizerTest {
             colored.add(v);
             links.get(v).stream().distinct().filter(it -> !colored.contains(it)).forEach(it -> candidates.add(it));
         }
-        int colorCount = colored.size();
-        return colorCount;
+        return colored.size() == links.size();
+    }
+
+    private void unapplyShortcut(Map<Vertex, List<Vertex>> links, ShortCutMetric top) {
+        links.get(top.center).add(top.neighbours.get(0));
+        links.get(top.center).add(top.neighbours.get(1));
+        links.get(top.neighbours.get(0)).add(top.center);
+        links.get(top.neighbours.get(1)).add(top.center);
+        links.get(top.neighbours.get(0)).remove(top.neighbours.get(1));
+        links.get(top.neighbours.get(1)).remove(top.neighbours.get(0));
     }
 
     private void printChain(Map<Vertex, List<Vertex>> links) {
