@@ -63,6 +63,9 @@ public class DistanceGraph implements WeightedGraph {
 
         @Override
         public abstract Set<Vertex> getVertices();
+
+        @Override
+        public abstract int compareTo(Edge o);
     }
 
     private class VertexImpl extends Vertex {
