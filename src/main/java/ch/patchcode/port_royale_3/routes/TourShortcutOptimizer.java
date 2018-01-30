@@ -56,7 +56,7 @@ public class TourShortcutOptimizer {
                     Edge edge3 = v1.getEdges().stream().filter(it -> it.getVertices().contains(v2)).findFirst().get();
 
                     double benefit = Math.max(0, edge1.getWeight()+edge2.getWeight()-edge3.getWeight());
-                    metrics.add(new ShortcutMetric(v, Arrays.asList(v1, v2), benefit));
+                    metrics.add(new ShortcutMetric(v, Arrays.asList(v1, v2), -benefit));
                 }
             }
         }
