@@ -84,7 +84,7 @@ public class TourOptimizerTest {
                         Edge edge3 = v1.getEdges().stream().filter(it -> it.getVertices().contains(v2)).findFirst().get();
 
                         double benefit = Math.max(0, edge1.getWeight()+edge2.getWeight()-edge3.getWeight());
-                        metrics.add(new ShortCutMetric(v, Arrays.asList(v1, v2), benefit));
+                        metrics.add(new ShortCutMetric(v, Arrays.asList(v1, v2), -benefit));
                     }
                 }
             }
@@ -160,17 +160,17 @@ public class TourOptimizerTest {
 
         public final Vertex center;
         public final List<Vertex> neighbours;
-        public final double benefit;
+        public final double cost;
 
-        public ShortCutMetric(Vertex center, List<Vertex> neighbours, double benefit) {
+        public ShortCutMetric(Vertex center, List<Vertex> neighbours, double cost) {
             this.center = center;
             this.neighbours = Collections.unmodifiableList(neighbours.stream().sorted().collect(Collectors.toList()));
-            this.benefit = benefit;
+            this.cost = cost;
         }
 
         @Override
         public int compareTo(ShortCutMetric o) {
-            int byBenefitDescending = Double.compare(-benefit, -o.benefit);
+            int byBenefitDescending = Double.compare(cost, o.cost);
             if (byBenefitDescending != 0) return byBenefitDescending;
 
             int byCenter = center.compareTo(o.center);
@@ -184,7 +184,7 @@ public class TourOptimizerTest {
 
         @Override
         public String toString() {
-            return String.format("ShortCutMetric[%s-(%s)-%s saves %.1f]", neighbours.get(0).getName(), center.getName(), neighbours.get(1).getName(), benefit);
+            return String.format("ShortCutMetric[%s-(%s)-%s saves %.1f]", neighbours.get(0).getName(), center.getName(), neighbours.get(1).getName(), cost);
         }
     }
 }
