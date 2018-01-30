@@ -2,10 +2,13 @@ package ch.patchcode.port_royale_3.routes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Deque;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -68,23 +71,58 @@ public class TourOptimizerTest {
                 }
             }
 
-            // Problem: may (will) split the graph
-            ShortCutMetric top = metrics.stream().sorted().findFirst().get();
-            System.out.println(top);
+            Collections.sort(metrics);
+            while (metrics.size() > 0) {
+                ShortCutMetric top = metrics.remove(0);
 
-            List<Vertex> c = links.get(top.center);
-            c.remove(top.neighbours.get(0));
-            c.remove(top.neighbours.get(1));
-            links.get(top.neighbours.get(0)).remove(top.center);
-            links.get(top.neighbours.get(1)).remove(top.center);
-            links.get(top.neighbours.get(0)).add(top.neighbours.get(1));
-            links.get(top.neighbours.get(1)).add(top.neighbours.get(0));
+                Vertex a = top.neighbours.get(0);
+                Vertex b = top.neighbours.get(1);
+                Vertex c = top.center;
+
+                List<Vertex> x = links.get(a);
+                List<Vertex> y = links.get(b);
+                List<Vertex> z = links.get(c);
+
+                // Problem: may (will) split the graph
+                z.remove(a);
+                z.remove(b);
+                x.remove(c);
+                y.remove(c);
+                x.add(b);
+                y.add(a);                    
+
+                // so do a coloring check
+                if (colorByOneAndCount(links) == links.size()) {
+                    System.out.println(top);
+                    break;                    
+                } else {
+                    z.add(a);
+                    z.add(b);
+                    x.add(c);
+                    y.add(c);
+                    x.remove(b);
+                    y.remove(a);                    
+                }
+            }
 
             redundantVertices = links.entrySet().stream().filter(it -> it.getValue().size() / 2 > 1)
                     .map(it -> it.getKey()).collect(Collectors.toList());
         }
 
         printChain(links);
+    }
+
+    private int colorByOneAndCount(Map<Vertex, List<Vertex>> links) {
+        Set<Vertex> colored = new HashSet<Vertex>();
+        Deque<Vertex> candidates = new ArrayDeque<>();
+        candidates.add(links.keySet().iterator().next());
+        while (candidates.size() > 0) {
+            Vertex v = candidates.pop();
+            colored.add(v);
+            links.get(v).stream().distinct().filter(it -> !colored.contains(it)).forEach(it -> candidates.add(it));
+        }
+        int colorCount = colored.size();
+        return colorCount;
     }
 
     private void printChain(Map<Vertex, List<Vertex>> links) {
