@@ -66,7 +66,9 @@ public class TourOptimizerTest {
             redundantVertices = computeRedundantVertices(links);
         }
 
-        printChain(links);
+        for (Vertex node : createTour(links)) {
+            System.out.println("visit " + node.getName());
+        }
     }
 
     private Map<Vertex, List<Vertex>> createInitialLinks(Tree<Vertex> tree) {
@@ -140,16 +142,16 @@ public class TourOptimizerTest {
         links.get(top.neighbours.get(1)).remove(top.neighbours.get(0));
     }
 
-    private void printChain(Map<Vertex, List<Vertex>> links) {
+    private List<Vertex> createTour(Map<Vertex, List<Vertex>> links) {
         List<Vertex> visited = new ArrayList<>();
         Optional<Vertex> node = links.entrySet().stream().findFirst().map(it -> it.getKey());
         while (node.isPresent())  {
-            System.out.println("visit " + node.get().getName() + " (" + links.get(node.get()).stream().map(it -> it.getName()).collect(Collectors.joining(", ")) + ")");
             visited.add(node.get());
             node = links.get(node.get()).stream().filter(it -> !visited.contains(it)).findFirst();
         }
+        return visited;
     }
-    
+
     public static class ShortCutMetric implements Comparable<ShortCutMetric> {
 
         public final Vertex center;
