@@ -65,8 +65,8 @@ public class TourOptimizerTest {
                     .map(it -> it.getKey()).collect(Collectors.toList());
         }
 
-        public List<ShortCutMetric> computeAllShortcutMetrics(List<Vertex> redundantVertices) {
-            List<ShortCutMetric> metrics = new ArrayList<>();
+        public List<ShortcutMetric> computeAllShortcutMetrics(List<Vertex> redundantVertices) {
+            List<ShortcutMetric> metrics = new ArrayList<>();
             for (Vertex v : redundantVertices) {
 
                 Set<Vertex> neighbours = links.get(v).stream().distinct().collect(Collectors.toSet());
@@ -84,14 +84,14 @@ public class TourOptimizerTest {
                         Edge edge3 = v1.getEdges().stream().filter(it -> it.getVertices().contains(v2)).findFirst().get();
 
                         double benefit = Math.max(0, edge1.getWeight()+edge2.getWeight()-edge3.getWeight());
-                        metrics.add(new ShortCutMetric(v, Arrays.asList(v1, v2), -benefit));
+                        metrics.add(new ShortcutMetric(v, Arrays.asList(v1, v2), benefit));
                     }
                 }
             }
             return metrics;
         }
 
-        public void applyShortcut(ShortCutMetric top) {
+        public void applyShortcut(ShortcutMetric top) {
             links.get(top.center).remove(top.neighbours.get(0));
             links.get(top.center).remove(top.neighbours.get(1));
             links.get(top.neighbours.get(0)).remove(top.center);
@@ -112,7 +112,7 @@ public class TourOptimizerTest {
             return colored.size() == links.size();
         }
 
-        public void unapplyShortcut(ShortCutMetric top) {
+        public void unapplyShortcut(ShortcutMetric top) {
             links.get(top.center).add(top.neighbours.get(0));
             links.get(top.center).add(top.neighbours.get(1));
             links.get(top.neighbours.get(0)).add(top.center);
@@ -124,13 +124,13 @@ public class TourOptimizerTest {
         public List<Vertex> createTour() {
             List<Vertex> redundantVertices = computeRedundantVertices();
             while (redundantVertices.size() > 0) {
-                List<ShortCutMetric> metrics = computeAllShortcutMetrics(redundantVertices);
+                List<ShortcutMetric> metrics = computeAllShortcutMetrics(redundantVertices);
 
                 Collections.sort(metrics);
 
                 while (metrics.size() > 0) {
 
-                    ShortCutMetric top = metrics.remove(0);
+                    ShortcutMetric top = metrics.remove(0);
 
                     // Problem: may (will) split the graph
                     applyShortcut(top);
@@ -153,38 +153,6 @@ public class TourOptimizerTest {
                 node = links.get(node.get()).stream().filter(it -> !visited.contains(it)).findFirst();
             }
             return visited;
-        }
-    }
-
-    public static class ShortCutMetric implements Comparable<ShortCutMetric> {
-
-        public final Vertex center;
-        public final List<Vertex> neighbours;
-        public final double cost;
-
-        public ShortCutMetric(Vertex center, List<Vertex> neighbours, double cost) {
-            this.center = center;
-            this.neighbours = Collections.unmodifiableList(neighbours.stream().sorted().collect(Collectors.toList()));
-            this.cost = cost;
-        }
-
-        @Override
-        public int compareTo(ShortCutMetric o) {
-            int byBenefitDescending = Double.compare(cost, o.cost);
-            if (byBenefitDescending != 0) return byBenefitDescending;
-
-            int byCenter = center.compareTo(o.center);
-            if (byCenter != 0) return byCenter;
-
-            int byFirstNeighbour = neighbours.get(0).compareTo(o.neighbours.get(0));
-            if (byFirstNeighbour != 0) return byFirstNeighbour;
-
-            return neighbours.get(1).compareTo(o.neighbours.get(1));
-        }
-
-        @Override
-        public String toString() {
-            return String.format("ShortCutMetric[%s-(%s)-%s saves %.1f]", neighbours.get(0).getName(), center.getName(), neighbours.get(1).getName(), cost);
         }
     }
 }
