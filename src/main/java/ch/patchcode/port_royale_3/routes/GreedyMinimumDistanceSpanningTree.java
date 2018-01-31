@@ -15,7 +15,6 @@ import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
  * thereof, and then successively adding the next shortest edge to some yet
  * unconnected node, until all nodes are connected by the tree.
  */
-// TODO may need some superclass (Tree? Spanning Tree?)
 public class GreedyMinimumDistanceSpanningTree implements Tree<Vertex> {
 
     private Vertex root;

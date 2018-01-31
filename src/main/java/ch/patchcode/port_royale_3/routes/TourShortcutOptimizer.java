@@ -18,7 +18,13 @@ import ch.patchcode.graphs.trees.TreeUtils;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
-// TODO needs docu and some interface
+/**
+ * Traveling Salesman optimizer. Takes a spanning tree as input, starts with a
+ * route that travels each edge twice, and optimizes the route by greedily
+ * inserting shortcuts for nodes that are visited more than once. Greedy means
+ * that, of all possible shortcuts, the one with the biggest saving is always
+ * chosen first, until no further shortcuts are possible.
+ */
 public class TourShortcutOptimizer {
 
     private Map<Vertex, List<Vertex>> links;
@@ -59,7 +65,7 @@ public class TourShortcutOptimizer {
 
         List<Vertex> visited = new ArrayList<>();
         Optional<Vertex> node = links.entrySet().stream().findFirst().map(it -> it.getKey());
-        while (node.isPresent())  {
+        while (node.isPresent()) {
             visited.add(node.get());
             node = links.get(node.get()).stream().filter(it -> !visited.contains(it)).findFirst();
         }
@@ -67,8 +73,8 @@ public class TourShortcutOptimizer {
     }
 
     private List<Vertex> computeRedundantVertices() {
-        return links.entrySet().stream().filter(it -> it.getValue().size() / 2 > 1)
-                .map(it -> it.getKey()).collect(Collectors.toList());
+        return links.entrySet().stream().filter(it -> it.getValue().size() / 2 > 1).map(it -> it.getKey())
+                .collect(Collectors.toList());
     }
 
     private List<ShortcutMetric> computeAllShortcutMetrics(List<Vertex> redundantVertices) {
@@ -89,7 +95,7 @@ public class TourShortcutOptimizer {
                     Vertex v2 = edge2.getVertices().stream().filter(it -> !it.equals(v)).findFirst().get();
                     Edge edge3 = v1.getEdges().stream().filter(it -> it.getVertices().contains(v2)).findFirst().get();
 
-                    double benefit = Math.max(0, edge1.getWeight()+edge2.getWeight()-edge3.getWeight());
+                    double benefit = Math.max(0, edge1.getWeight() + edge2.getWeight() - edge3.getWeight());
                     metrics.add(new ShortcutMetric(v, Arrays.asList(v1, v2), -benefit));
                 }
             }

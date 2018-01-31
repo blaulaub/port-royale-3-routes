@@ -2,6 +2,8 @@ package ch.patchcode.port_royale_3.routes;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Iterator;
+import java.util.List;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -26,6 +28,28 @@ public class TourShortcutOptimizerTest {
         Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree(graph);
         TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
 
-        links.createTour().stream().forEach(it -> System.out.println("visit " + it.getName()));
+        List<Vertex> tour = links.createTour();
+
+        tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
+        System.out.println(String.format("total duration: %.1f", getDistance(tour)));
+    }
+
+    private double getDistance(List<Vertex> tour) {
+        Iterator<Vertex> iter = tour.iterator();
+        double sum = 0;
+        Vertex first = iter.next();
+        Vertex current = first;
+        Vertex previous;
+        while (iter.hasNext()) {
+            previous = current;
+            current = iter.next();
+            sum += getDistance(current, previous);
+        }
+        sum += getDistance(current, first);
+        return sum;
+    }
+
+    private Double getDistance(Vertex a, Vertex b) {
+        return a.getEdges().stream().filter(it -> it.getVertices().contains(b)).filter(it -> it.getVertices().contains(a)).findFirst().map(it -> it.getWeight()).get();
     }
 }
