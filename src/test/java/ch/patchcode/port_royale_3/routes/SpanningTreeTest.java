@@ -14,7 +14,7 @@ import ch.patchcode.graphs.trees.Tree;
 import ch.patchcode.graphs.trees.TreeUtils;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
-public class GreedyMinimumDistanceSpanningTreeTest {
+public class SpanningTreeTest {
 
     private DistanceGraph graph;
 
@@ -27,7 +27,7 @@ public class GreedyMinimumDistanceSpanningTreeTest {
     }
 
     @Test
-    public void outputTree() throws IOException {
+    public void outputGreedyMinimumDistanceSpanningTree() throws IOException {
         Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree(graph);
 
         File file = new File("GreedyMinimumDistanceSpanningTree.dot");
@@ -36,7 +36,5 @@ public class GreedyMinimumDistanceSpanningTreeTest {
         try (PrintWriter writer = new PrintWriter(bufferedWriter)) {
             TreeUtils.writeGraphvizDotFileContent(tree, writer);
         }
-
     }
-
 }
