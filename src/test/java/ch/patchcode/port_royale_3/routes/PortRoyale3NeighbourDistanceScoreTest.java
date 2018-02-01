@@ -12,13 +12,12 @@ import org.junit.Test;
 
 import ch.patchcode.graphs.weighted.NeighbourDistanceScore;
 
-public class NeighbourDistanceScoreTest {
+public class PortRoyale3NeighbourDistanceScoreTest {
 
     private DistanceGraph graph;
 
     @Before
     public void setup() throws IOException {
-        // TODO this dependency on port-royale data prevents isolating this test
         try (InputStream is = PortRoyaleTriangleInequalityTest.class.getClassLoader()
                 .getResourceAsStream("port-royale-3-distances.csv")) {
             graph = new DistanceGraph(new DistanceCsvData(is));
