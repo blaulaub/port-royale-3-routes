@@ -10,12 +10,15 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Test;
 
+import ch.patchcode.graphs.weighted.NeighbourDistanceScore;
+
 public class NeighbourDistanceScoreTest {
 
     private DistanceGraph graph;
 
     @Before
     public void setup() throws IOException {
+        // TODO this dependency on port-royale data prevents isolating this test
         try (InputStream is = PortRoyaleTriangleInequalityTest.class.getClassLoader()
                 .getResourceAsStream("port-royale-3-distances.csv")) {
             graph = new DistanceGraph(new DistanceCsvData(is));
@@ -24,14 +27,14 @@ public class NeighbourDistanceScoreTest {
 
     @Test
     public void findMostCentralTortuga() {
-        NeighbourDistanceScore centralVertex = graph.getVertices().stream().map(NeighbourDistanceScore::new).sorted().findFirst().get();
+        NeighbourDistanceScore<?, ?> centralVertex = graph.getVertices().stream().map(NeighbourDistanceScore::new).sorted().findFirst().get();
         assertThat(centralVertex.getVertex().getName(), equalTo("Tortuga"));
         assertThat(centralVertex.getMeanDistance(), closeTo(2.49, 0.01));
     }
 
     @Test
     public void findMostRemoteCorpusChristi() {
-        NeighbourDistanceScore remoteVertex = graph.getVertices().stream().map(NeighbourDistanceScore::new).sorted().reduce((first, second) -> second).get();
+        NeighbourDistanceScore<?, ?> remoteVertex = graph.getVertices().stream().map(NeighbourDistanceScore::new).sorted().reduce((first, second) -> second).get();
         assertThat(remoteVertex.getVertex().getName(), equalTo("Corpus Christi"));
         assertThat(remoteVertex.getMeanDistance(), closeTo(4.75, 0.01));
     }

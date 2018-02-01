@@ -1,18 +1,15 @@
-package ch.patchcode.port_royale_3.routes;
+package ch.patchcode.graphs.weighted;
 
 import java.util.Set;
 
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
+public class NeighbourDistanceScore<V extends WeightedVertex, E extends WeightedEdge> implements Comparable<NeighbourDistanceScore<V, E>> {
 
-public class NeighbourDistanceScore implements Comparable<NeighbourDistanceScore> {
-
-    private final Vertex vertex;
+    private final V vertex;
     private final int count;
     private final double meanDistance;
 
-    public NeighbourDistanceScore(Vertex vertex) {
-        Set<Edge> edges = vertex.getEdges();
+    public NeighbourDistanceScore(V vertex) {
+        Set<? extends WeightedEdge> edges = vertex.getEdges();
         int count = edges.size();
         double meanDistance = edges.stream().mapToDouble(it -> it.getWeight()).sum() / count;
         this.vertex = vertex;
@@ -21,7 +18,7 @@ public class NeighbourDistanceScore implements Comparable<NeighbourDistanceScore
 
     }
 
-    public Vertex getVertex() {
+    public V getVertex() {
         return vertex;
     }
 
@@ -36,7 +33,7 @@ public class NeighbourDistanceScore implements Comparable<NeighbourDistanceScore
     }
 
     @Override
-    public int compareTo(NeighbourDistanceScore o) {
+    public int compareTo(NeighbourDistanceScore<V, E> o) {
         int countDescending = Integer.compare(o.count, count);
         if (countDescending != 0) {
             return countDescending;

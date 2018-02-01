@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import ch.patchcode.graphs.trees.Tree;
+import ch.patchcode.graphs.weighted.NeighbourDistanceScore;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
