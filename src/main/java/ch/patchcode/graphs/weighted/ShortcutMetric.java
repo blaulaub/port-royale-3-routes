@@ -1,25 +1,23 @@
-package ch.patchcode.port_royale_3.routes;
+package ch.patchcode.graphs.weighted;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
+public class ShortcutMetric<V extends WeightedVertex & Comparable<V>> implements Comparable<ShortcutMetric<V>> {
 
-public class ShortcutMetric implements Comparable<ShortcutMetric> {
-
-    public final Vertex center;
-    public final List<Vertex> neighbours;
+    public final V center;
+    public final List<V> neighbours;
     public final double cost;
 
-    public ShortcutMetric(Vertex center, List<Vertex> neighbours, double cost) {
+    public ShortcutMetric(V center, List<V> neighbours, double cost) {
         this.center = center;
         this.neighbours = Collections.unmodifiableList(neighbours.stream().sorted().collect(Collectors.toList()));
         this.cost = cost;
     }
 
     @Override
-    public int compareTo(ShortcutMetric o) {
+    public int compareTo(ShortcutMetric<V> o) {
         int byBenefitDescending = Double.compare(cost, o.cost);
         if (byBenefitDescending != 0) return byBenefitDescending;
 
