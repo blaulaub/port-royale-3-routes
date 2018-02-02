@@ -15,7 +15,6 @@ public class NeighbourDistanceScore<V extends WeightedVertex<V, E>, E extends We
         this.vertex = vertex;
         this.count = count;
         this.meanDistance = meanDistance;
-
     }
 
     public V getVertex() {
