@@ -46,12 +46,14 @@ public class SpanningTreeTest {
     @Test
     public void develBisection() {
         Vertex v1 = graph.getCentralVertex();
+
         Edge edge = graph.getLongestEdge();
         List<Vertex> vPair = new ArrayList<>(edge.getVertices());
         Map<Boolean, List<Vertex>> n =  graph.getVertices().stream().collect(Collectors.groupingBy(v -> graph.getDistance(v, vPair.get(0)) < graph.getDistance(v,  vPair.get(1)) ? Boolean.TRUE : Boolean.FALSE));
         List<Vertex> g1 = n.get(Boolean.TRUE);
         List<Vertex> g2 = n.get(Boolean.FALSE);
-        System.out.println("closer to " + vPair.get(0).getName() + " are: " + g1.stream().map(it -> it.getName()).collect(Collectors.joining(", ")));
-        System.out.println("closer to " + vPair.get(1).getName() + " are: " + g2.stream().map(it -> it.getName()).collect(Collectors.joining(", ")));
+
+        Edge shortestConnection = g1.stream().flatMap(v -> v.getEdges().stream()).filter(e -> g2.stream().anyMatch(v -> e.getVertices().contains(v))).reduce((a, b) -> a.getWeight() < b.getWeight() ? a : b).get();
+        System.out.println("shortest is between " + shortestConnection.getVertices().stream().map(v -> v.getName()).collect(Collectors.joining(" and ")) + " and takes " + shortestConnection.getWeight() + " days.");
     }
 }
