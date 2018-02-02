@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -45,15 +47,24 @@ public class SpanningTreeTest {
 
     @Test
     public void develBisection() {
-        Vertex v1 = graph.getCentralVertex();
-
         Edge edge = graph.getLongestEdge();
         List<Vertex> vPair = new ArrayList<>(edge.getVertices());
         Map<Boolean, List<Vertex>> n =  graph.getVertices().stream().collect(Collectors.groupingBy(v -> graph.getDistance(v, vPair.get(0)) < graph.getDistance(v,  vPair.get(1)) ? Boolean.TRUE : Boolean.FALSE));
         List<Vertex> g1 = n.get(Boolean.TRUE);
         List<Vertex> g2 = n.get(Boolean.FALSE);
+        BisectResult r = new BisectResult(g1, g2);
 
-        Edge shortestConnection = g1.stream().flatMap(v -> v.getEdges().stream()).filter(e -> g2.stream().anyMatch(v -> e.getVertices().contains(v))).reduce((a, b) -> a.getWeight() < b.getWeight() ? a : b).get();
-        System.out.println("shortest is between " + shortestConnection.getVertices().stream().map(v -> v.getName()).collect(Collectors.joining(" and ")) + " and takes " + shortestConnection.getWeight() + " days.");
+        System.out.println("shortest is between " + r.connection.getVertices().stream().map(v -> v.getName()).collect(Collectors.joining(" and ")) + " and takes " + r.connection.getWeight() + " days.");
+    }
+
+    public static class BisectResult {
+
+        public final List<List<Vertex>> groups;
+        public final Edge connection;
+
+        public BisectResult(List<Vertex> g1, List<Vertex> g2) {
+            connection = g1.stream().flatMap(v -> v.getEdges().stream()).filter(e -> g2.stream().anyMatch(v -> e.getVertices().contains(v))).reduce((a, b) -> a.getWeight() < b.getWeight() ? a : b).get();
+            groups = Collections.unmodifiableList(Arrays.asList(Collections.unmodifiableList(new ArrayList<>(g1)), Collections.unmodifiableList(new ArrayList<>(g1))));
+        }
     }
 }
