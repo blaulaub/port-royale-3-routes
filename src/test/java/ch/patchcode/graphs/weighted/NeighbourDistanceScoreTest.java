@@ -18,9 +18,9 @@ public class NeighbourDistanceScoreTest {
     @Before
     public void setup() throws IOException {
         TestGraph g = new TestGraph();
-        TestGraph.TestVertex a = g.createVertex("A");
-        TestGraph.TestVertex b = g.createVertex("B");
-        TestGraph.TestVertex c = g.createVertex("C");
+        TestGraph.Vertex a = g.createVertex("A");
+        TestGraph.Vertex b = g.createVertex("B");
+        TestGraph.Vertex c = g.createVertex("C");
         g.createEdge(a, b, 1.);
         g.createEdge(b, c, 2);
         g.createEdge(a, c, 3);
@@ -41,19 +41,19 @@ public class NeighbourDistanceScoreTest {
         assertThat(remoteVertex.getMeanDistance(), closeTo(2.5, 0.01));
     }
 
-    private class TestGraph implements WeightedGraph<TestGraph.TestVertex, TestGraph.TestEdge> {
+    private class TestGraph implements WeightedGraph<TestGraph.Vertex, TestGraph.Edge> {
 
-        public Set<TestVertex> vertices = new HashSet<>();
-        public Set<TestEdge> edges = new HashSet<>();
+        public Set<Vertex> vertices = new HashSet<>();
+        public Set<Edge> edges = new HashSet<>();
 
-        public TestVertex createVertex(String name) {
-            TestVertex v = new TestVertex(name);
+        public Vertex createVertex(String name) {
+            Vertex v = new Vertex(name);
             vertices.add(v);
             return v;
         }
 
-        public TestEdge createEdge(TestVertex a, TestVertex b, double weight) {
-            TestEdge edge = new TestEdge(weight);
+        public Edge createEdge(Vertex a, Vertex b, double weight) {
+            Edge edge = new Edge(weight);
             a.edges.add(edge);
             b.edges.add(edge);
             edges.add(edge);
@@ -61,22 +61,22 @@ public class NeighbourDistanceScoreTest {
         }
 
         @Override
-        public Set<TestVertex> getVertices() {
+        public Set<Vertex> getVertices() {
             return vertices;
         }
 
         @Override
-        public Set<TestEdge> getEdges() {
+        public Set<Edge> getEdges() {
             return edges;
         }
 
-        public class TestVertex implements WeightedVertex<TestVertex, TestEdge> {
+        public class Vertex implements WeightedVertex<Vertex, Edge> {
         
             public final String name;
         
-            public Set<TestEdge> edges;
+            public Set<Edge> edges;
         
-            public TestVertex(String name) {
+            public Vertex(String name) {
                 this.name = name;
                 this.edges = new HashSet<>();
             }
@@ -87,7 +87,7 @@ public class NeighbourDistanceScoreTest {
             }
         
             @Override
-            public Set<TestEdge> getEdges() {
+            public Set<Edge> getEdges() {
                 return edges;
             }
         
@@ -97,18 +97,18 @@ public class NeighbourDistanceScoreTest {
             }
         }
 
-        public class TestEdge implements WeightedEdge<TestVertex, TestEdge> {
+        public class Edge implements WeightedEdge<Vertex, Edge> {
         
             public final double weight;
-            public Set<TestVertex> vertices;
+            public Set<Vertex> vertices;
         
-            public TestEdge(double weight) {
+            public Edge(double weight) {
                 super();
                 this.weight = weight;
             }
         
             @Override
-            public Set<TestVertex> getVertices() {
+            public Set<Vertex> getVertices() {
                 return vertices;
             }
         
