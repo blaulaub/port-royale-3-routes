@@ -13,7 +13,7 @@ import org.junit.Test;
 
 public class NeighbourDistanceScoreTest {
 
-    private WeightedGraph graph;
+    private TestGraph graph;
 
     @Before
     public void setup() throws IOException {
@@ -41,7 +41,7 @@ public class NeighbourDistanceScoreTest {
         assertThat(remoteVertex.getMeanDistance(), closeTo(2.5, 0.01));
     }
 
-    private class TestGraph implements WeightedGraph {
+    private class TestGraph implements WeightedGraph<TestGraph.TestVertex, TestGraph.TestEdge> {
 
         public Set<TestVertex> vertices = new HashSet<>();
         public Set<TestEdge> edges = new HashSet<>();
@@ -70,7 +70,7 @@ public class NeighbourDistanceScoreTest {
             return edges;
         }
 
-        public class TestVertex implements WeightedVertex {
+        public class TestVertex implements WeightedVertex<TestVertex, TestEdge> {
         
             public final String name;
         
@@ -97,7 +97,7 @@ public class NeighbourDistanceScoreTest {
             }
         }
 
-        public class TestEdge implements WeightedEdge {
+        public class TestEdge implements WeightedEdge<TestVertex, TestEdge> {
         
             public final double weight;
             public Set<TestVertex> vertices;

@@ -4,7 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ShortcutMetric<V extends WeightedVertex & Comparable<V>> implements Comparable<ShortcutMetric<V>> {
+public class ShortcutMetric<V extends WeightedVertex<V, E> & Comparable<V>, E extends WeightedEdge<V, E>> implements Comparable<ShortcutMetric<V, E>> {
 
     public final V center;
     public final List<V> neighbours;
@@ -17,7 +17,7 @@ public class ShortcutMetric<V extends WeightedVertex & Comparable<V>> implements
     }
 
     @Override
-    public int compareTo(ShortcutMetric<V> o) {
+    public int compareTo(ShortcutMetric<V, E> o) {
         int byBenefitDescending = Double.compare(cost, o.cost);
         if (byBenefitDescending != 0) return byBenefitDescending;
 

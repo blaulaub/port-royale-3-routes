@@ -12,7 +12,7 @@ import ch.patchcode.graphs.weighted.WeightedEdge;
 import ch.patchcode.graphs.weighted.WeightedGraph;
 import ch.patchcode.graphs.weighted.WeightedVertex;
 
-public class DistanceGraph implements WeightedGraph {
+public class DistanceGraph implements WeightedGraph<DistanceGraph.Vertex, DistanceGraph.Edge> {
 
     private final Set<Vertex> vertices;
     private final Set<Edge> edges;
@@ -46,7 +46,7 @@ public class DistanceGraph implements WeightedGraph {
         return edges;
     }
 
-    public abstract class Vertex implements WeightedVertex, Comparable<Vertex> {
+    public abstract class Vertex implements WeightedVertex<Vertex, Edge>, Comparable<Vertex> {
 
         public abstract String getName();
 
@@ -59,7 +59,7 @@ public class DistanceGraph implements WeightedGraph {
         }
     }
 
-    public abstract class Edge implements WeightedEdge, Comparable<Edge> {
+    public abstract class Edge implements WeightedEdge<Vertex, Edge>, Comparable<Edge> {
 
         @Override
         public abstract Set<Vertex> getVertices();

@@ -2,14 +2,14 @@ package ch.patchcode.graphs.weighted;
 
 import java.util.Set;
 
-public class NeighbourDistanceScore<V extends WeightedVertex, E extends WeightedEdge> implements Comparable<NeighbourDistanceScore<V, E>> {
+public class NeighbourDistanceScore<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> implements Comparable<NeighbourDistanceScore<V, E>> {
 
     private final V vertex;
     private final int count;
     private final double meanDistance;
 
     public NeighbourDistanceScore(V vertex) {
-        Set<? extends WeightedEdge> edges = vertex.getEdges();
+        Set<? extends WeightedEdge<V, E>> edges = vertex.getEdges();
         int count = edges.size();
         double meanDistance = edges.stream().mapToDouble(it -> it.getWeight()).sum() / count;
         this.vertex = vertex;

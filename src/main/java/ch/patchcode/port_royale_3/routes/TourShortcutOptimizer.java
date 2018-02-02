@@ -42,13 +42,13 @@ public class TourShortcutOptimizer {
     public List<Vertex> createTour() {
         List<Vertex> redundantVertices = computeRedundantVertices();
         while (redundantVertices.size() > 0) {
-            List<ShortcutMetric<Vertex>> metrics = computeAllShortcutMetrics(redundantVertices);
+            List<ShortcutMetric<Vertex, Edge>> metrics = computeAllShortcutMetrics(redundantVertices);
 
             Collections.sort(metrics);
 
             while (metrics.size() > 0) {
 
-                ShortcutMetric<Vertex> top = metrics.remove(0);
+                ShortcutMetric<Vertex, Edge> top = metrics.remove(0);
 
                 // Problem: may (will) split the graph
                 applyShortcut(top);
@@ -78,8 +78,8 @@ public class TourShortcutOptimizer {
                 .collect(Collectors.toList());
     }
 
-    private List<ShortcutMetric<Vertex>> computeAllShortcutMetrics(List<Vertex> redundantVertices) {
-        List<ShortcutMetric<Vertex>> metrics = new ArrayList<>();
+    private List<ShortcutMetric<Vertex, Edge>> computeAllShortcutMetrics(List<Vertex> redundantVertices) {
+        List<ShortcutMetric<Vertex, Edge>> metrics = new ArrayList<>();
         for (Vertex v : redundantVertices) {
 
             Set<Vertex> neighbours = links.get(v).stream().distinct().collect(Collectors.toSet());
@@ -104,7 +104,7 @@ public class TourShortcutOptimizer {
         return metrics;
     }
 
-    private void applyShortcut(ShortcutMetric<Vertex> top) {
+    private void applyShortcut(ShortcutMetric<Vertex, Edge> top) {
         links.get(top.center).remove(top.neighbours.get(0));
         links.get(top.center).remove(top.neighbours.get(1));
         links.get(top.neighbours.get(0)).remove(top.center);
@@ -125,7 +125,7 @@ public class TourShortcutOptimizer {
         return colored.size() == links.size();
     }
 
-    private void unapplyShortcut(ShortcutMetric<Vertex> top) {
+    private void unapplyShortcut(ShortcutMetric<Vertex, Edge> top) {
         links.get(top.center).add(top.neighbours.get(0));
         links.get(top.center).add(top.neighbours.get(1));
         links.get(top.neighbours.get(0)).add(top.center);

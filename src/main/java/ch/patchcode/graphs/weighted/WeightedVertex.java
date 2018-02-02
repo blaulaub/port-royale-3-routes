@@ -2,7 +2,7 @@ package ch.patchcode.graphs.weighted;
 
 import ch.patchcode.graphs.basic.Vertex;
 
-public interface WeightedVertex extends Vertex<WeightedEdge> {
+public interface WeightedVertex<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> extends Vertex<E> {
 
     double getWeight();
 }
