@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
+import ch.patchcode.graphs.weighted.BisectionSpanningTree;
 import ch.patchcode.graphs.weighted.GreedyMinimumDistanceSpanningTree;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
@@ -25,14 +26,25 @@ public class TourShortcutOptimizerTest {
     }
 
     @Test
-    public void outputTree() throws IOException {
-        Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree(graph);
+    public void optimizeGreedyMinimumDistanceSpanningTree() throws IOException {
+        Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree<>(graph);
         TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
 
         List<Vertex> tour = links.createTour();
 
         tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
-        System.out.println(String.format("total duration: %.1f", getDistance(tour)));
+        System.out.println(String.format("total duration from %s is: %.1f", tree.getClass().getSimpleName(), getDistance(tour)));
+    }
+
+    @Test
+    public void optimizeGBisectionSpanningTree() throws IOException {
+        Tree<Vertex> tree = new BisectionSpanningTree<>(graph);
+        TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
+
+        List<Vertex> tour = links.createTour();
+
+        tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
+        System.out.println(String.format("total duration from %s is: %.1f", tree.getClass().getSimpleName(), getDistance(tour)));
     }
 
     private double getDistance(List<Vertex> tour) {
