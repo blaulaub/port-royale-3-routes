@@ -9,8 +9,10 @@ import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.junit.Before;
@@ -18,6 +20,9 @@ import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
 import ch.patchcode.graphs.trees.TreeUtils;
+import ch.patchcode.graphs.weighted.WeightedEdge;
+import ch.patchcode.graphs.weighted.WeightedGraph;
+import ch.patchcode.graphs.weighted.WeightedVertex;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
@@ -47,24 +52,29 @@ public class SpanningTreeTest {
 
     @Test
     public void develBisection() {
-        Edge edge = graph.getLongestEdge();
-        List<Vertex> vPair = new ArrayList<>(edge.getVertices());
-        Map<Boolean, List<Vertex>> n =  graph.getVertices().stream().collect(Collectors.groupingBy(v -> graph.getDistance(v, vPair.get(0)) < graph.getDistance(v,  vPair.get(1)) ? Boolean.TRUE : Boolean.FALSE));
-        List<Vertex> g1 = n.get(Boolean.TRUE);
-        List<Vertex> g2 = n.get(Boolean.FALSE);
-        BisectResult r = new BisectResult(g1, g2);
-
+        Set<Vertex> vertices = graph.getVertices();
+        BisectResult<Vertex, Edge> r = bisect(graph, vertices);
         System.out.println("shortest is between " + r.connection.getVertices().stream().map(v -> v.getName()).collect(Collectors.joining(" and ")) + " and takes " + r.connection.getWeight() + " days.");
     }
 
-    public static class BisectResult {
+    private <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> BisectResult<V, E> bisect(WeightedGraph<V, E> graph, Set<V> vertices) {
+        E edge = graph.getLongestEdge(vertices);
+        List<V> vPair = new ArrayList<>(edge.getVertices());
+        Map<Boolean, List<V>> n =  vertices.stream().collect(Collectors.groupingBy(v -> graph.getDistance(v, vPair.get(0)) < graph.getDistance(v,  vPair.get(1)) ? Boolean.TRUE : Boolean.FALSE));
+        List<V> g1 = n.get(Boolean.TRUE);
+        List<V> g2 = n.get(Boolean.FALSE);
+        BisectResult<V, E> r = new BisectResult<V, E>(g1, g2);
+        return r;
+    }
 
-        public final List<List<Vertex>> groups;
-        public final Edge connection;
+    public static class BisectResult<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> {
 
-        public BisectResult(List<Vertex> g1, List<Vertex> g2) {
+        public final List<Set<V>> groups;
+        public final E connection;
+
+        public BisectResult(List<V> g1, List<V> g2) {
             connection = g1.stream().flatMap(v -> v.getEdges().stream()).filter(e -> g2.stream().anyMatch(v -> e.getVertices().contains(v))).reduce((a, b) -> a.getWeight() < b.getWeight() ? a : b).get();
-            groups = Collections.unmodifiableList(Arrays.asList(Collections.unmodifiableList(new ArrayList<>(g1)), Collections.unmodifiableList(new ArrayList<>(g1))));
+            groups = Collections.unmodifiableList(Arrays.asList(Collections.unmodifiableSet(new HashSet<>(g1)), Collections.unmodifiableSet(new HashSet<>(g1))));
         }
     }
 }
