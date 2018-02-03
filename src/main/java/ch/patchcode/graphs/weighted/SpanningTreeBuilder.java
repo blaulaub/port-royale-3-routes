@@ -1,4 +1,4 @@
-package ch.patchcode.port_royale_3.routes;
+package ch.patchcode.graphs.weighted;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,27 +9,24 @@ import java.util.TreeSet;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
+public class SpanningTreeBuilder<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> {
 
-public class SpanningTreeBuilder {
+    private final V centralVertex;
+    public Map<V, List<V>> tree;
+    private TreeSet<E> openEdges;
+    private Predicate<E> pred;
 
-    private final Vertex centralVertex;
-    public Map<Vertex, List<Vertex>> tree;
-    private TreeSet<Edge> openEdges;
-    private Predicate<Edge> pred;
-
-    public SpanningTreeBuilder(Vertex centralVertex) {
-        Map<Vertex, List<Vertex>> tree = new HashMap<>();
+    public SpanningTreeBuilder(V centralVertex) {
+        Map<V, List<V>> tree = new HashMap<>();
         tree.put(centralVertex, new ArrayList<>());
-        TreeSet<Edge> openEdges = new TreeSet<>(centralVertex.getEdges());
+        TreeSet<E> openEdges = new TreeSet<>(centralVertex.getEdges());
         this.centralVertex = centralVertex;
         this.tree = tree;
         this.openEdges = openEdges;
         this.pred = e -> edgeIsNotCoveredByTree(tree, e);
     }
 
-    public Map<Vertex, List<Vertex>> getTree() {
+    public Map<V, List<V>> getTree() {
         return tree;
     }
 
@@ -37,32 +34,32 @@ public class SpanningTreeBuilder {
         return openEdges.size() > 0;
     }
 
-    public Edge shortestOpenEdge() {
+    public E shortestOpenEdge() {
         return openEdges.iterator().next();
     }
 
-    public void connectEdge(Edge openEdge) {
-        List<Vertex> vertices = new LinkedList<>(openEdge.getVertices());
-        Vertex insertionPoint = tree.entrySet().stream()
+    public void connectEdge(E openEdge) {
+        List<V> vertices = new LinkedList<>(openEdge.getVertices());
+        V insertionPoint = tree.entrySet().stream()
                 .filter(it -> vertices.contains(it.getKey())).findFirst().get().getKey();
         vertices.remove(insertionPoint);
 
-        Vertex newPoint = vertices.get(0);
+        V newPoint = vertices.get(0);
         addSubVertex(insertionPoint, newPoint);
     }
 
-    private void addSubVertex(Vertex insertionPoint, Vertex newPoint) {
+    private void addSubVertex(V insertionPoint, V newPoint) {
         tree.get(insertionPoint).add(newPoint);
         tree.put(newPoint, new ArrayList<>());
         openEdges.addAll(newPoint.getEdges());
         openEdges = new TreeSet<>(openEdges.stream().filter(pred).collect(Collectors.toList()));
     }
 
-    private static boolean edgeIsNotCoveredByTree(Map<Vertex, List<Vertex>> tree, Edge edge) {
+    private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> boolean edgeIsNotCoveredByTree(Map<V, List<V>> tree, E edge) {
         return edge.getVertices().stream().filter(it -> !tree.keySet().contains(it)).count() > 0;
     }
 
-    public Vertex getRoot() {
+    public V getRoot() {
         return centralVertex;
     }
 }

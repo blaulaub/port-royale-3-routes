@@ -9,6 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
+import ch.patchcode.graphs.weighted.GreedyMinimumDistanceSpanningTree;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
 public class TourShortcutOptimizerTest {

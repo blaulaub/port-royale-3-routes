@@ -21,7 +21,7 @@ public interface WeightedGraph<V extends WeightedVertex<V, E>, E extends Weighte
      * @param vertices
      * @return the edge with the largest weight, taking into account all edges of the graph that connect the given vertices
      */
-    default E getLongestEdge(Collection<V> vertices) {
+    default E getLongestEdge(Collection<? extends V> vertices) {
         return vertices.stream().flatMap(it -> it.getEdges().stream()).filter(e -> e.getVertices().stream().allMatch(v -> vertices.contains(v))).reduce((a, b) -> a.getWeight() > b.getWeight() ? a : b).get();
     }
 

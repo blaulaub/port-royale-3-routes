@@ -4,7 +4,7 @@ import java.util.Set;
 
 public interface Graph<V extends Vertex<E>, E extends Edge<V>> {
 
-    Set<? extends V> getVertices();
+    Set<V> getVertices();
 
-    Set<? extends E> getEdges();
+    Set<E> getEdges();
 }
