@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
-import ch.patchcode.graphs.weighted.BisectionSpanningTree;
+import ch.patchcode.graphs.weighted.TopDownBisectionSpanningTree;
 import ch.patchcode.graphs.weighted.GreedyMinimumDistanceSpanningTree;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
@@ -37,8 +37,8 @@ public class TourShortcutOptimizerTest {
     }
 
     @Test
-    public void optimizeGBisectionSpanningTree() throws IOException {
-        Tree<Vertex> tree = new BisectionSpanningTree<>(graph);
+    public void optimizeTopDownBisectionSpanningTree() throws IOException {
+        Tree<Vertex> tree = new TopDownBisectionSpanningTree<>(graph);
         TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
 
         List<Vertex> tour = links.createTour();

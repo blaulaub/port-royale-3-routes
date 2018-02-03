@@ -12,7 +12,7 @@ import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
 import ch.patchcode.graphs.trees.TreeUtils;
-import ch.patchcode.graphs.weighted.BisectionSpanningTree;
+import ch.patchcode.graphs.weighted.TopDownBisectionSpanningTree;
 import ch.patchcode.graphs.weighted.GreedyMinimumDistanceSpanningTree;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
@@ -41,10 +41,10 @@ public class SpanningTreeTest {
     }
 
     @Test
-    public void outputBisectionSpanningTree() throws IOException {
-        Tree<Vertex> tree = new BisectionSpanningTree<>(graph);
+    public void outputTopDownBisectionSpanningTree() throws IOException {
+        Tree<Vertex> tree = new TopDownBisectionSpanningTree<>(graph);
 
-        File file = new File("BisectionSpanningTree.dot");
+        File file = new File("TopDownBisectionSpanningTree.dot");
         FileWriter fileWriter = new FileWriter(file);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
         try (PrintWriter writer = new PrintWriter(bufferedWriter)) {

@@ -6,10 +6,9 @@ import java.util.List;
 import java.util.Map;
 
 import ch.patchcode.graphs.trees.Tree;
-import ch.patchcode.port_royale_3.routes.DistanceGraph;
 
 /**
- * A spanning tree constructed from some {@link DistanceGraph} by first
+ * A spanning tree constructed from some {@link WeightedGraph} by first
  * selecting the node with the most connections and the minimum mean distance
  * thereof, and then successively adding the next shortest edge to some yet
  * unconnected node, until all nodes are connected by the tree.
