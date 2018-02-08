@@ -1,9 +1,12 @@
 package ch.patchcode.graphs.weighted;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Deque;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -12,18 +15,51 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class BottomUpBipairingSpanningTree<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> {
+import ch.patchcode.graphs.trees.Tree;
+
+public class BottomUpBipairingSpanningTree<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> implements Tree<V> {
+
+    private final V root;
+    private final Map<V, List<V>> tree;
 
     public BottomUpBipairingSpanningTree(WeightedGraph<V, E> graph) {
         Set<V> vertices = graph.getVertices();
         List<BottomUpBipairingSpanningTree.Group<V, E>> groups = vertices.stream().map(Collections::singleton).map(BottomUpBipairingSpanningTree.Group::new).collect(Collectors.toList());
 
+        List<E> edges = new ArrayList<>();
         while (groups.size() > 1) {
-            groups = combineGroups(groups, it -> System.out.println(it));
+            groups = combineGroups(groups, edges::add);
         }
-        // TODO
-        // what we missed was to record the connections made during the above recombination loop,
-        // and then to transfer them into a spanning tree
+
+        Map<V, List<V>> neighbours = new HashMap<>();
+        edges.stream().forEach(e -> {
+            List<V> vs = new ArrayList<>(e.getVertices());
+            neighbours.computeIfAbsent(vs.get(0), $ -> new ArrayList<>()).add(vs.get(1));
+            neighbours.computeIfAbsent(vs.get(1), $ -> new ArrayList<>()).add(vs.get(0));
+        });
+
+        root = graph.getCentralVertex();
+        tree = new HashMap<>();
+
+        Deque<V> nodes = new ArrayDeque<>();
+        nodes.push(root);
+        while (!nodes.isEmpty()) {
+            V node = nodes.pop();
+            neighbours.remove(node).stream().filter(it -> !tree.keySet().contains(it)).forEach(n -> {
+                tree.computeIfAbsent(node, $ -> new ArrayList<>()).add(n);
+                nodes.add(n);
+            });
+        }
+    }
+
+    @Override
+    public V getRoot() {
+        return root;
+    }
+
+    @Override
+    public Collection<V> getChildren(V vertex) {
+        return Collections.unmodifiableCollection(tree.getOrDefault(vertex, Collections.emptyList()));
     }
 
     private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> List<BottomUpBipairingSpanningTree.Group<V, E>> combineGroups(List<BottomUpBipairingSpanningTree.Group<V, E>> groups, Consumer<E> newEdgeConsumer) {

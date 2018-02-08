@@ -24,8 +24,8 @@ import ch.patchcode.graphs.trees.Tree;
  */
 public class TopDownBisectionSpanningTree<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> implements Tree<V> {
 
-    private V root;
-    private Map<V, List<V>> tree;
+    private final V root;
+    private final Map<V, List<V>> tree;
 
     public TopDownBisectionSpanningTree(WeightedGraph<V, E> graph) {
         List<E> edges = bisectRecursively(graph, graph.getVertices());

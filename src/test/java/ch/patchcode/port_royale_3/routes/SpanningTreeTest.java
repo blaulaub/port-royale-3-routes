@@ -54,7 +54,14 @@ public class SpanningTreeTest {
     }
 
     @Test
-    public void outputBottomUpSpanningTree() throws IOException {
-        new BottomUpBipairingSpanningTree<>(graph);
+    public void outputBottomUpBipairingSpanningTree() throws IOException {
+        Tree<Vertex> tree = new BottomUpBipairingSpanningTree<>(graph);
+
+        File file = new File("BottomUpBipairingSpanningTree.dot");
+        FileWriter fileWriter = new FileWriter(file);
+        BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);
+        try (PrintWriter writer = new PrintWriter(bufferedWriter)) {
+            TreeUtils.writeGraphvizDotFileContent(tree, writer);
+        }
     }
 }
