@@ -10,6 +10,7 @@ import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
 import ch.patchcode.graphs.weighted.TopDownBisectionSpanningTree;
+import ch.patchcode.graphs.weighted.BottomUpBipairingSpanningTree;
 import ch.patchcode.graphs.weighted.GreedyMinimumDistanceSpanningTree;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
@@ -39,6 +40,17 @@ public class TourShortcutOptimizerTest {
     @Test
     public void optimizeTopDownBisectionSpanningTree() throws IOException {
         Tree<Vertex> tree = new TopDownBisectionSpanningTree<>(graph);
+        TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
+
+        List<Vertex> tour = links.createTour();
+
+        tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
+        System.out.println(String.format("total duration from %s is: %.1f", tree.getClass().getSimpleName(), getDistance(tour)));
+    }
+
+    @Test
+    public void optimizeBottomUpBipairingSpanningTree() throws IOException {
+        Tree<Vertex> tree = new BottomUpBipairingSpanningTree<>(graph);
         TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
 
         List<Vertex> tour = links.createTour();
