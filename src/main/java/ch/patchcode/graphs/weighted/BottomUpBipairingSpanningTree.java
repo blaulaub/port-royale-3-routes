@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,18 +19,14 @@ public class BottomUpBipairingSpanningTree<V extends WeightedVertex<V, E>, E ext
         List<BottomUpBipairingSpanningTree.Group<V, E>> groups = vertices.stream().map(Collections::singleton).map(BottomUpBipairingSpanningTree.Group::new).collect(Collectors.toList());
 
         while (groups.size() > 1) {
-            groups = combineGroups(groups);
-
-            groups.forEach(it -> {
-                System.out.println(it);
-            });
+            groups = combineGroups(groups, it -> System.out.println(it));
         }
         // TODO
         // what we missed was to record the connections made during the above recombination loop,
         // and then to transfer them into a spanning tree
     }
 
-    private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> List<BottomUpBipairingSpanningTree.Group<V, E>> combineGroups(List<BottomUpBipairingSpanningTree.Group<V, E>> groups) {
+    private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> List<BottomUpBipairingSpanningTree.Group<V, E>> combineGroups(List<BottomUpBipairingSpanningTree.Group<V, E>> groups, Consumer<E> newEdgeConsumer) {
         List<BottomUpBipairingSpanningTree.Group<V, E>> groups1 = new ArrayList<>(groups);
 
         List<BottomUpBipairingSpanningTree.GroupConnection<V, E>> nextConnections1 = new ArrayList<>();
@@ -38,6 +35,7 @@ public class BottomUpBipairingSpanningTree<V extends WeightedVertex<V, E>, E ext
             Collection<BottomUpBipairingSpanningTree.GroupConnection<V, E>> values = allShortestIntergroupConnections(groups1).values();
             // pick the one group that has the longest way to other groups
             BottomUpBipairingSpanningTree.GroupConnection<V, E> cand = values.stream().reduce((g1, g2) -> g1.edge.getWeight() > g2.edge.getWeight() ? g1 : g2).get();
+            newEdgeConsumer.accept(cand.edge);
             // remove connected groups from remaining groups
             groups1.removeIf(it1 -> it1.vertices.stream().anyMatch(v -> cand.edge.getVertices().contains(v)));
             // keep connection

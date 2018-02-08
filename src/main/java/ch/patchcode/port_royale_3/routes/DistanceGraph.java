@@ -66,6 +66,13 @@ public class DistanceGraph implements WeightedGraph<DistanceGraph.Vertex, Distan
 
         @Override
         public abstract int compareTo(Edge o);
+
+        @Override
+        public String toString() {
+            return String.format("%s[%.1f:%s]", this.getClass().getSimpleName(), getWeight(), getVertices().stream().map(it -> it.getName()).collect(Collectors.joining("-")));
+        }
+
+
     }
 
     private class VertexImpl extends Vertex {
