@@ -70,42 +70,39 @@ public class SpanningTreeTest {
         Set<Vertex> vertices = graph.getVertices();
         List<Group<Vertex, Edge>> groups = vertices.stream().map(Collections::singleton).map(Group::new).collect(Collectors.toList());
 
-        // find connections, leave unconnected in groups
-        List<GroupConnection<Vertex, Edge>> nextConnections = findConnections(groups);
+        while (groups.size() > 1) {
+            groups = combineGroups(groups);
 
-        // convert connections into super-groups
-        List<Group<Vertex, Edge>> nextGroups = new ArrayList<>();
-        nextConnections.stream().map(x -> toGroup(x)).forEach(nextGroups::add);
-        // also keep the odd-one-out
-        groups = nextGroups;
-
-        nextGroups.forEach(it -> {
-            System.out.println(it);
-        });
-
-        // TBC
-
-        // sort descending (group with furthest nearest neighbour first) and create pairs for next round
-        // if an odd group remains, just keep it for the next round
+            groups.forEach(it -> {
+                System.out.println(it);
+            });
+        }
+        // what we missed was to record the connections made during the above recombination loop,
+        // and then to transfer them into a spanning tree
     }
 
-    private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> List<GroupConnection<V, E>> findConnections(Collection<Group<V, E>> gro) {
-        List<Group<V, E>> groups = new ArrayList<>(gro);
-        List<GroupConnection<V, E>> nextConnections = new ArrayList<>();
-        while (groups.size() > 1) {
+    private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> List<Group<V, E>> combineGroups(List<Group<V, E>> groups) {
+        List<Group<V, E>> groups1 = new ArrayList<>(groups);
+
+        List<GroupConnection<V, E>> nextConnections1 = new ArrayList<>();
+        while (groups1.size() > 1) {
             // lookup shortest intergroup-connection for all remaining groups
-            Collection<GroupConnection<V, E>> values = allShortestIntergroupConnections(groups).values();
+            Collection<GroupConnection<V, E>> values = allShortestIntergroupConnections(groups1).values();
             // pick the one group that has the longest way to other groups
             GroupConnection<V, E> cand = values.stream().reduce((g1, g2) -> g1.edge.getWeight() > g2.edge.getWeight() ? g1 : g2).get();
             // remove connected groups from remaining groups
-            groups.removeIf(it -> it.vertices.stream().anyMatch(v -> cand.edge.getVertices().contains(v)));
+            groups1.removeIf(it1 -> it1.vertices.stream().anyMatch(v -> cand.edge.getVertices().contains(v)));
             // keep connection
-            nextConnections.add(cand);
+            nextConnections1.add(cand);
         }
-        return nextConnections;
+
+        List<Group<V, E>> nextGroups = new ArrayList<>();
+        nextConnections1.stream().map(x -> toGroup(x)).forEach(nextGroups::add);
+        nextGroups.addAll(groups1);
+        return nextGroups;
     }
 
-    private Group<Vertex, Edge> toGroup(GroupConnection<Vertex, Edge> connection) {
+    private static <V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> Group<V, E> toGroup(GroupConnection<V, E> connection) {
         return new Group<>(connection.groups.stream().flatMap(it -> it.vertices.stream()).collect(Collectors.toSet()));
     }
 
