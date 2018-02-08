@@ -67,6 +67,12 @@ public class SpanningTreeTest {
 
     @Test
     public void outputBottomUpSpanningTree() throws IOException {
+        new BottomUpBipairingSpanningTree(graph);
+    }
+
+    public static class BottomUpBipairingSpanningTree {
+
+        public BottomUpBipairingSpanningTree(DistanceGraph graph) {
         Set<Vertex> vertices = graph.getVertices();
         List<Group<Vertex, Edge>> groups = vertices.stream().map(Collections::singleton).map(Group::new).collect(Collectors.toList());
 
@@ -146,5 +152,6 @@ public class SpanningTreeTest {
         public String toString() {
             return String.format("%s<%s>[%d:%s]", getClass().getSimpleName(), vertices.stream().findFirst().map(it -> it.getClass().getSimpleName()).orElse("?"), vertices.size(), vertices.stream().map(it->it.getName()).collect(Collectors.joining(",")));
         }
+    }
     }
 }
