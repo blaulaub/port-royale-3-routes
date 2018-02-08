@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,8 +34,7 @@ public class TourShortcutOptimizerTest {
 
         List<Vertex> tour = links.createTour();
 
-        tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
-        System.out.println(String.format("total duration from %s is: %.1f", tree.getClass().getSimpleName(), getDistance(tour)));
+        report(tree, tour);
     }
 
     @Test
@@ -44,8 +44,7 @@ public class TourShortcutOptimizerTest {
 
         List<Vertex> tour = links.createTour();
 
-        tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
-        System.out.println(String.format("total duration from %s is: %.1f", tree.getClass().getSimpleName(), getDistance(tour)));
+        report(tree, tour);
     }
 
     @Test
@@ -55,8 +54,11 @@ public class TourShortcutOptimizerTest {
 
         List<Vertex> tour = links.createTour();
 
-        tour.stream().forEach(it -> System.out.println("visit " + it.getName()));
-        System.out.println(String.format("total duration from %s is: %.1f", tree.getClass().getSimpleName(), getDistance(tour)));
+        report(tree, tour);
+    }
+
+    private void report(Tree<Vertex> tree, List<Vertex> tour) {
+        System.out.println(String.format("total duration %.1f days from %-33s visiting %s", getDistance(tour), tree.getClass().getSimpleName(), tour.stream().map(it -> it.getName()).collect(Collectors.joining(", "))));
     }
 
     private double getDistance(List<Vertex> tour) {
