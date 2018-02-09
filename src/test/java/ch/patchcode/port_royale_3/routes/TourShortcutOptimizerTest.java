@@ -11,8 +11,10 @@ import org.junit.Test;
 
 import ch.patchcode.graphs.trees.Tree;
 import ch.patchcode.graphs.weighted.TopDownBisectionSpanningTree;
+import ch.patchcode.graphs.weighted.TourShortcutOptimizer;
 import ch.patchcode.graphs.weighted.BottomUpBipairingSpanningTree;
 import ch.patchcode.graphs.weighted.GreedyMinimumDistanceSpanningTree;
+import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
 public class TourShortcutOptimizerTest {
@@ -30,7 +32,7 @@ public class TourShortcutOptimizerTest {
     @Test
     public void optimizeGreedyMinimumDistanceSpanningTree() throws IOException {
         Tree<Vertex> tree = new GreedyMinimumDistanceSpanningTree<>(graph);
-        TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
+        TourShortcutOptimizer<Vertex, Edge> links = new TourShortcutOptimizer<>(tree);
 
         List<Vertex> tour = links.createTour();
 
@@ -40,7 +42,7 @@ public class TourShortcutOptimizerTest {
     @Test
     public void optimizeTopDownBisectionSpanningTree() throws IOException {
         Tree<Vertex> tree = new TopDownBisectionSpanningTree<>(graph);
-        TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
+        TourShortcutOptimizer<Vertex, Edge> links = new TourShortcutOptimizer<>(tree);
 
         List<Vertex> tour = links.createTour();
 
@@ -50,7 +52,7 @@ public class TourShortcutOptimizerTest {
     @Test
     public void optimizeBottomUpBipairingSpanningTree() throws IOException {
         Tree<Vertex> tree = new BottomUpBipairingSpanningTree<>(graph);
-        TourShortcutOptimizer links = new TourShortcutOptimizer(tree);
+        TourShortcutOptimizer<Vertex, Edge> links = new TourShortcutOptimizer<>(tree);
 
         List<Vertex> tour = links.createTour();
 
