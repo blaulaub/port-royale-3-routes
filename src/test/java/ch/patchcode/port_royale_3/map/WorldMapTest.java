@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 import org.junit.Before;
 import org.junit.Test;
 
-import ch.patchcode.graphs.trees.TreeUtils;
 import ch.patchcode.port_royale_3.map.WorldMap.Pos;
 import ch.patchcode.port_royale_3.routes.DistanceCsvData;
 import ch.patchcode.port_royale_3.routes.DistanceGraph;
@@ -33,7 +32,7 @@ public class WorldMapTest {
 
     @Test
     public void test() throws IOException {
-        WorldMap map = new WorldMap();
+        WorldMap map = new WorldMap(200.);
         Vertex center = graph.getCentralVertex();
         map.addFixed(center, 0, 0);
 
@@ -47,12 +46,10 @@ public class WorldMapTest {
             if (map.contains(node)) continue;
             map.add(node);
             for (int i = 0; i < 10000; ++i) {
-                if (map.rebalance() < 0.001) break;
+                if (map.rebalance() < 0.01) break;
             }
             System.out.println(String.format("residual %.2f after adding %s", map.rebalance(), node.getName()));
         }
-
-        int fac = 200;
 
         File file = new File("WorldMapTest.dot");
         FileWriter fileWriter = new FileWriter(file);
@@ -61,7 +58,7 @@ public class WorldMapTest {
             writer.println("digraph G {");
             for (Vertex node : map.vertices()) {
                 Pos p = map.getPosition(node);
-                writer.println(String.format("  \"%s\" [ pos=\"%d,%d!\" ]", node.getName(), (int)(fac * p.getX()), (int) (fac * p.getY())));
+                writer.println(String.format("  \"%s\" [ pos=\"%d,%d!\" ]", node.getName(), (int)p.getX(), (int)p.getY()));
             }
             writer.println("}");
         }

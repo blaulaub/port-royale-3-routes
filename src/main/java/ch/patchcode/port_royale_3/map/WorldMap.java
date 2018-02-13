@@ -13,9 +13,15 @@ import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
 public class WorldMap {
 
+    private final double scale;
+
     private Map<Vertex, PosImpl> positions = new HashMap<>();
     private Set<Vertex> fixed = new HashSet<>();
     private Set<Vertex> free = new HashSet<>();
+
+    public WorldMap(double scale) {
+        this.scale = scale;
+    }
 
     public Collection<Vertex> vertices() {
         return Collections.unmodifiableCollection(positions.keySet());
@@ -38,7 +44,7 @@ public class WorldMap {
             throw new DuplicateEntryException(node);
         }
         free.add(node);
-        positions.put(node, PosImpl.rand(0.5));
+        positions.put(node, randomPos(1.));
     }
 
     public double rebalance() {
@@ -72,7 +78,11 @@ public class WorldMap {
         double getY();
     }
 
-    private static class PosImpl implements Pos {
+    public PosImpl randomPos(double multiplier) {
+        return new PosImpl(Math.random() * multiplier, Math.random() * multiplier);
+    }
+
+    private class PosImpl implements Pos {
 
         double x;
         double y;
@@ -82,10 +92,6 @@ public class WorldMap {
         public PosImpl(double x, double y) {
             this.x = x;
             this.y = y;
-        }
-
-        public static PosImpl rand(double multiplier) {
-            return new PosImpl(Math.random() * multiplier, Math.random() * multiplier);
         }
 
         public double getX() {
@@ -106,8 +112,8 @@ public class WorldMap {
         }
 
         public PosImpl minus(PosImpl refNode, double weight) {
-            PosImpl d = new PosImpl(x - refNode.x, y - refNode.y);
-            return d.times(1. - weight/Math.sqrt(d.absSquare()));
+            PosImpl d = new PosImpl(x - refNode.x, y - refNode.y).times(1/scale);
+            return d.times((1. - weight/Math.sqrt(d.absSquare()))*scale);
         }
 
         public PosImpl times(double multiplier) {
