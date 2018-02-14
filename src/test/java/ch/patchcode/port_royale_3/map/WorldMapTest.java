@@ -45,6 +45,7 @@ public class WorldMapTest {
         for (Vertex node : otherNodesOrderedByDistance) {
             if (map.contains(node)) continue;
             map.add(node);
+            map.rebalance(node, 0.01);
             map.rebalanceAll(0.01);
         }
 

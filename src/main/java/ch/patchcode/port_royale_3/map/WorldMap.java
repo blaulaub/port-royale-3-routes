@@ -50,6 +50,15 @@ public class WorldMap {
         positions.put(node, randomPos(1.));
     }
 
+    public void rebalance(Vertex node, double residualLimit) {
+        double weight = free.size();
+        PosImpl residual;
+        do {
+            residual = computeResidual(node);
+            positions.get(node).shiftBy(residual.times(1/weight));
+        } while (residual.absSquare() > residualLimit);
+    }
+
     public void rebalanceAll(double residualLimit) {
         double residual;
         do {
@@ -60,12 +69,8 @@ public class WorldMap {
 
     private Map<Vertex, PosImpl> rebalanceAllOnce() {
         double weight = free.size();
-        // compute residuals
         Map<Vertex, PosImpl> residuals = computeResiduals(free);
-        // apply residual correction
-        for (Entry<Vertex, PosImpl> res : residuals.entrySet()) {
-            positions.get(res.getKey()).shiftBy(res.getValue().times(1/weight));
-        }
+        applyResidualShiftWithWeight(weight, residuals);
         return residuals;
     }
 
@@ -83,6 +88,12 @@ public class WorldMap {
                 .ifPresent(it -> residual.shiftBy(it.minus(positions.get(node), edge.getWeight())));
         }
         return residual;
+    }
+
+    private void applyResidualShiftWithWeight(double weight, Map<Vertex, PosImpl> residuals) {
+        for (Entry<Vertex, PosImpl> res : residuals.entrySet()) {
+            positions.get(res.getKey()).shiftBy(res.getValue().times(1/weight));
+        }
     }
 
     public Pos getPosition(Vertex node) {
