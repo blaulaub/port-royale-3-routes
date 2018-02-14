@@ -50,6 +50,11 @@ public class WorldMapTest {
             map.rebalanceAll(0.01);
         }
 
+        Vertex portRoyale = graph.getVertices().stream().filter(it -> it.getName().equals("Port Royale")).findFirst().get();
+        Vertex corpusChristi = graph.getVertices().stream().filter(it -> it.getName().equals("Corpus Christi")).findFirst().get();
+
+        map.realign(portRoyale, 0., 0., corpusChristi, -800., 400.);
+
         File file = new File("WorldMapTest.dot");
         FileWriter fileWriter = new FileWriter(file);
         BufferedWriter bufferedWriter = new BufferedWriter(fileWriter);

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import ch.patchcode.graphs.weighted.WeightedEdge;
 import ch.patchcode.graphs.weighted.WeightedVertex;
+import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 
 public class WorldMap<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> {
 
@@ -153,5 +154,39 @@ public class WorldMap<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, 
         public DuplicateEntryException(WeightedVertex<?,?> node) {
             super(node.toString());
         }
+    }
+
+    public void realign(Vertex v1, double x1, double y1, Vertex v2, double x2, double y2) {
+
+        WorldMap<V, E>.PosImpl p1 = positions.get(v1);
+        WorldMap<V, E>.PosImpl p2 = positions.get(v2);
+
+        double alpha_old = Math.atan2(p2.y-p1.y, p2.x-p1.x);
+        double alpha_new = Math.atan2(y2-y1, x2-x1);
+
+        // could be of opposite sign
+        double alpha = alpha_old - alpha_new;
+
+        double dx_old = p2.x -p1.x;
+        double dy_old = p2.y -p1.y;
+        double dist_old = Math.sqrt(dx_old*dx_old + dy_old*dy_old);
+
+        double dx = x2-x1;
+        double dy = y2-y1;
+        double dist_new = Math.sqrt(dx*dx + dy*dy);
+
+        double lambda = dist_new / dist_old;
+
+        double ca = Math.cos(alpha);
+        double sa = Math.sin(alpha);
+
+        double ox = x1 - lambda * (ca*p1.x + sa*p1.y);
+        double oy = y1 - lambda * (ca*p1.y - sa*p1.x);
+
+        System.out.println("alpha: " + alpha);
+        System.out.println("lambda: " + lambda);
+        System.out.println("ox: " + ox);
+        System.out.println("oy: " + oy);
+        // TODO Auto-generated method stub
     }
 }
