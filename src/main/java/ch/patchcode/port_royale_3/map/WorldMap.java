@@ -156,6 +156,7 @@ public class WorldMap<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, 
         }
     }
 
+    // a bit useless, because this just rotates and scales, but does not fix mirroring
     public void realign(Vertex v1, double x1, double y1, Vertex v2, double x2, double y2) {
 
         WorldMap<V, E>.PosImpl p1 = positions.get(v1);
@@ -164,7 +165,6 @@ public class WorldMap<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, 
         double alpha_old = Math.atan2(p2.y-p1.y, p2.x-p1.x);
         double alpha_new = Math.atan2(y2-y1, x2-x1);
 
-        // could be of opposite sign
         double alpha = alpha_old - alpha_new;
 
         double dx_old = p2.x -p1.x;
@@ -183,10 +183,8 @@ public class WorldMap<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, 
         double ox = x1 - lambda * (ca*p1.x + sa*p1.y);
         double oy = y1 - lambda * (ca*p1.y - sa*p1.x);
 
-        System.out.println("alpha: " + alpha);
-        System.out.println("lambda: " + lambda);
-        System.out.println("ox: " + ox);
-        System.out.println("oy: " + oy);
-        // TODO Auto-generated method stub
+        positions.replaceAll((k,v) -> new PosImpl(
+                lambda * (v.x * ca + v.y * sa) + ox,
+                lambda * (v.y * ca - v.x * sa) + oy));
     }
 }
