@@ -45,10 +45,7 @@ public class WorldMapTest {
         for (Vertex node : otherNodesOrderedByDistance) {
             if (map.contains(node)) continue;
             map.add(node);
-            for (int i = 0; i < 10000; ++i) {
-                if (map.rebalance() < 0.01) break;
-            }
-            System.out.println(String.format("residual %.2f after adding %s", map.rebalance(), node.getName()));
+            map.rebalanceAll(0.01);
         }
 
         File file = new File("WorldMapTest.dot");

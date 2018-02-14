@@ -1,5 +1,7 @@
 package ch.patchcode.port_royale_3.map;
 
+import static java.util.function.Function.identity;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -7,6 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
@@ -47,26 +50,39 @@ public class WorldMap {
         positions.put(node, randomPos(1.));
     }
 
-    public double rebalance() {
+    public void rebalanceAll(double residualLimit) {
+        double residual;
+        do {
+            Map<Vertex, PosImpl> residuals = rebalanceAllOnce();
+            residual = residuals.values().stream().mapToDouble(PosImpl::absSquare).sum();
+        } while (residual > residualLimit);
+    }
+
+    private Map<Vertex, PosImpl> rebalanceAllOnce() {
+        double weight = free.size();
         // compute residuals
-        Map<Vertex, PosImpl> residuals = new HashMap<>();
-        for (Vertex node : free) {
-            for (Edge edge : node.getEdges()) {
-                edge.getVertices().stream()
-                    .filter(it -> !node.equals(it))
-                    .filter(it -> positions.keySet().contains(it)).findFirst()
-                    .map(it -> positions.get(it))
-                    .ifPresent(it -> residuals.computeIfAbsent(node, $ -> new PosImpl())
-                            .shiftBy(it.minus(positions.get(node), edge.getWeight())));
-            }
-        }
+        Map<Vertex, PosImpl> residuals = computeResiduals(free);
         // apply residual correction
-        double weight = residuals.size();
         for (Entry<Vertex, PosImpl> res : residuals.entrySet()) {
             positions.get(res.getKey()).shiftBy(res.getValue().times(1/weight));
         }
-        // what was the absolute residual value?
-        return residuals.values().stream().mapToDouble(it -> it.absSquare()).sum();
+        return residuals;
+    }
+
+    private Map<Vertex, PosImpl> computeResiduals(Set<Vertex> subset) {
+        return subset.stream().collect(Collectors.toMap(identity(), this::computeResidual));
+    }
+
+    private PosImpl computeResidual(Vertex node) {
+        PosImpl residual = new PosImpl();
+        for (Edge edge : node.getEdges()) {
+            edge.getVertices().stream()
+                .filter(it -> !node.equals(it))
+                .filter(it -> positions.keySet().contains(it)).findFirst()
+                .map(it -> positions.get(it))
+                .ifPresent(it -> residual.shiftBy(it.minus(positions.get(node), edge.getWeight())));
+        }
+        return residual;
     }
 
     public Pos getPosition(Vertex node) {
