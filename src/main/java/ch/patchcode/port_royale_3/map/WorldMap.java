@@ -11,30 +11,30 @@ import java.util.Map.Entry;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
-import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
+import ch.patchcode.graphs.weighted.WeightedEdge;
+import ch.patchcode.graphs.weighted.WeightedVertex;
 
-public class WorldMap {
+public class WorldMap<V extends WeightedVertex<V, E>, E extends WeightedEdge<V, E>> {
 
     private final double scale;
 
-    private Map<Vertex, PosImpl> positions = new HashMap<>();
-    private Set<Vertex> fixed = new HashSet<>();
-    private Set<Vertex> free = new HashSet<>();
+    private Map<V, PosImpl> positions = new HashMap<>();
+    private Set<V> fixed = new HashSet<>();
+    private Set<V> free = new HashSet<>();
 
     public WorldMap(double scale) {
         this.scale = scale;
     }
 
-    public Collection<Vertex> vertices() {
+    public Collection<V> vertices() {
         return Collections.unmodifiableCollection(positions.keySet());
     }
 
-    public boolean contains(Vertex node) {
+    public boolean contains(V node) {
         return positions.keySet().contains(node);
     }
 
-    public void addFixed(Vertex node, int x, int y) {
+    public void addFixed(V node, int x, int y) {
         if (contains(node)) {
             throw new DuplicateEntryException(node);
         }
@@ -42,7 +42,7 @@ public class WorldMap {
         positions.put(node, new PosImpl(x, y));
     }
 
-    public void add(Vertex node) {
+    public void add(V node) {
         if (contains(node)) {
             throw new DuplicateEntryException(node);
         }
@@ -50,7 +50,7 @@ public class WorldMap {
         positions.put(node, randomPos(1.));
     }
 
-    public void rebalance(Vertex node, double residualLimit) {
+    public void rebalance(V node, double residualLimit) {
         double weight = free.size();
         PosImpl residual;
         do {
@@ -62,25 +62,25 @@ public class WorldMap {
     public void rebalanceAll(double residualLimit) {
         double residual;
         do {
-            Map<Vertex, PosImpl> residuals = rebalanceAllOnce();
+            Map<V, PosImpl> residuals = rebalanceAllOnce();
             residual = residuals.values().stream().mapToDouble(PosImpl::absSquare).sum();
         } while (residual > residualLimit);
     }
 
-    private Map<Vertex, PosImpl> rebalanceAllOnce() {
+    private Map<V, PosImpl> rebalanceAllOnce() {
         double weight = free.size();
-        Map<Vertex, PosImpl> residuals = computeResiduals(free);
+        Map<V, PosImpl> residuals = computeResiduals(free);
         applyResidualShiftWithWeight(weight, residuals);
         return residuals;
     }
 
-    private Map<Vertex, PosImpl> computeResiduals(Set<Vertex> subset) {
+    private Map<V, PosImpl> computeResiduals(Set<V> subset) {
         return subset.stream().collect(Collectors.toMap(identity(), this::computeResidual));
     }
 
-    private PosImpl computeResidual(Vertex node) {
+    private PosImpl computeResidual(V node) {
         PosImpl residual = new PosImpl();
-        for (Edge edge : node.getEdges()) {
+        for (E edge : node.getEdges()) {
             edge.getVertices().stream()
                 .filter(it -> !node.equals(it))
                 .filter(it -> positions.keySet().contains(it)).findFirst()
@@ -90,13 +90,13 @@ public class WorldMap {
         return residual;
     }
 
-    private void applyResidualShiftWithWeight(double weight, Map<Vertex, PosImpl> residuals) {
-        for (Entry<Vertex, PosImpl> res : residuals.entrySet()) {
+    private void applyResidualShiftWithWeight(double weight, Map<V, PosImpl> residuals) {
+        for (Entry<V, PosImpl> res : residuals.entrySet()) {
             positions.get(res.getKey()).shiftBy(res.getValue().times(1/weight));
         }
     }
 
-    public Pos getPosition(Vertex node) {
+    public Pos getPosition(V node) {
         return positions.get(node);
     }
 
@@ -150,7 +150,7 @@ public class WorldMap {
 
     private static class DuplicateEntryException extends RuntimeException {
         private static final long serialVersionUID = -176430125631335959L;
-        public DuplicateEntryException(Vertex node) {
+        public DuplicateEntryException(WeightedVertex<?,?> node) {
             super(node.toString());
         }
     }

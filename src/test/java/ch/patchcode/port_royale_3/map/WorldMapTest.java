@@ -15,6 +15,7 @@ import org.junit.Test;
 import ch.patchcode.port_royale_3.map.WorldMap.Pos;
 import ch.patchcode.port_royale_3.routes.DistanceCsvData;
 import ch.patchcode.port_royale_3.routes.DistanceGraph;
+import ch.patchcode.port_royale_3.routes.DistanceGraph.Edge;
 import ch.patchcode.port_royale_3.routes.DistanceGraph.Vertex;
 import ch.patchcode.port_royale_3.routes.PortRoyaleTriangleInequalityTest;
 
@@ -32,7 +33,7 @@ public class WorldMapTest {
 
     @Test
     public void test() throws IOException {
-        WorldMap map = new WorldMap(200.);
+        WorldMap<Vertex, Edge> map = new WorldMap<>(200.);
         Vertex center = graph.getCentralVertex();
         map.addFixed(center, 0, 0);
 
